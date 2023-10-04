@@ -1,5 +1,5 @@
 <template>
-    <div class="container md-5 p-4 m-5 shadow-md rounded-lg bg-white">
+    <div class="container p-4 mx-0 my-5 shadow-md rounded-lg bg-white max-w-3xl">
         <div class="prose" v-html="$mdRenderer.render(data)"></div>
     </div>
 </template>
