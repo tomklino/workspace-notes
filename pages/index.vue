@@ -1,15 +1,14 @@
 <template>
     <div>
-        <h2>Home</h2>
         <div>
-            <div class="prose" v-html="$mdRenderer.render(data)"></div>
+            <NoteCard v-for="note in notes" :noteID=note :key="note"/>
         </div>
 
     </div>
 </template>
 
 <script setup>
-    const { data } = await useFetch('/api/hello')
+    const { data: notes } = await useFetch('/api/notes')
 </script>
 
 <style lang="scss" scoped>
