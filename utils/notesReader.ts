@@ -10,7 +10,8 @@ let _notesReader: null|NotesReader = null
 
 export function useNotesReader() {
     if(_notesReader === null) {
-        _notesReader = initNotesReader('/home/tomklino/notes/october.d/workspaces-2023-10-03/')
+        const config = useRuntimeConfig()
+        _notesReader = initNotesReader(config.dataDir)
     }
     return _notesReader
 }
