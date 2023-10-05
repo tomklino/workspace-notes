@@ -1,3 +1,4 @@
+import { exec } from 'child_process'
 import * as fs from 'fs'
 import path from 'path'
 
@@ -27,13 +28,20 @@ function initNotesReader(datadir: string): NotesReader {
     }
 
     async function listNotes(): Promise<ErrorTuple<string[]>> {
-        const [ err, _notes ]= await readDir(datadir)
-        if (err || !Array.isArray(_notes)) {
-            return [ err, null ]
-        }
-        return [ null, _notes
-            .filter(fname => fname.endsWith('.md') || fname.endsWith('.txt'))
-            .map(fname => encodeURIComponent(fname)) ]
+        const days = 5
+        // TODO This is insecure - replace this with js logic to read files newer than `days` old, ordered by date
+        const command = "find -daystart -mtime " + `-${days}` + " -type f \\\( -name '*.txt' -o -name '*.md' \\\) -not \\\( -empty \\\) -printf \"%T@ %p\\\\n\"| sort -rn | awk '{ print $2 }'"
+        return new Promise((resolve) => {
+            exec(command, { cwd: datadir, shell: '/bin/bash' }, (err, stdout) => {
+                if(err) {
+                    console.log(err)
+                    return resolve ([ err, null ])
+                }
+                return resolve ([ null,
+                    stdout.trim().split('\n').map(encodeURIComponent) ])
+            })
+        })
+        return [ null, null ]
     }
 
     return {
