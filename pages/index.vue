@@ -1,9 +1,6 @@
 <template>
     <div>
-        <div>
-            <NoteCard v-for="note in notes" :noteID=note :key="note"/>
-        </div>
-
+        <NoteCard v-for="note in notes" :noteID=note :key="note"/>
     </div>
 </template>
 
