@@ -2,5 +2,7 @@ import { useNotesReader } from "~/utils/notesReader"
 
 export default defineEventHandler(async (event) => {
     const notesReader = useNotesReader()
-    return await notesReader.listNotes()
+    const [ err, notes ] = await notesReader.listNotes()
+    if(err) return []
+    return notes
 })

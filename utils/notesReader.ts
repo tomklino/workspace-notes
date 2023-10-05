@@ -1,9 +1,11 @@
 import * as fs from 'fs'
 import path from 'path'
 
+type ErrorTuple<T> = [Error|null,T|null]
+
 type NotesReader = {
-    readNote: (id: string) => Promise<[Error|null, string]>,
-    listNotes: () => Promise<string[]>
+    readNote: (id: string) => Promise<ErrorTuple<string>>,
+    listNotes: () => Promise<ErrorTuple<string[]>>
 }
 
 let _notesReader: null|NotesReader = null
@@ -16,7 +18,7 @@ export function useNotesReader() {
     return _notesReader
 }
 function initNotesReader(datadir: string): NotesReader {
-    async function readNote(id: string): Promise<[Error|null, string]> {
+    async function readNote(id: string): Promise<ErrorTuple<string>> {
         const [ err, file ] = await readFile(datadir, id)
         if(err) {
             return [ err, "" ]
@@ -24,14 +26,14 @@ function initNotesReader(datadir: string): NotesReader {
         return [ null, file ]
     }
 
-    async function listNotes(): Promise<string[]> {
+    async function listNotes(): Promise<ErrorTuple<string[]>> {
         const [ err, _notes ]= await readDir(datadir)
         if (err || !Array.isArray(_notes)) {
-            return []
+            return [ err, null ]
         }
-        return _notes
+        return [ null, _notes
             .filter(fname => fname.endsWith('.md') || fname.endsWith('.txt'))
-            .map(fname => encodeURIComponent(fname))
+            .map(fname => encodeURIComponent(fname)) ]
     }
 
     return {
