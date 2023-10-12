@@ -6,7 +6,7 @@ type ErrorTuple<T> = [Error|null,T|null]
 
 type NotesReader = {
     readNote: (id: string) => Promise<ErrorTuple<string>>,
-    listNotes: () => Promise<ErrorTuple<string[]>>
+    listNotes: (days: number) => Promise<ErrorTuple<string[]>>
 }
 
 let _notesReader: null|NotesReader = null
@@ -22,13 +22,13 @@ function initNotesReader(datadir: string): NotesReader {
     async function readNote(id: string): Promise<ErrorTuple<string>> {
         const [ err, file ] = await readFile(datadir, id)
         if(err) {
-            return [ err, "" ]
+            return [ err, null ]
         }
         return [ null, file ]
     }
 
-    async function listNotes(): Promise<ErrorTuple<string[]>> {
-        const days = 5
+    async function listNotes(days: number): Promise<ErrorTuple<string[]>> {
+        if(isNaN(days)) days = 5
         // TODO This is insecure - replace this with js logic to read files newer than `days` old, ordered by date
         const command = "find -daystart -mtime " + `-${days}` + " -type f \\\( -name '*.txt' -o -name '*.md' \\\) -not \\\( -empty \\\) -printf \"%T@ %p\\\\n\"| sort -rn | awk '{ print $2 }'"
         return new Promise((resolve) => {
