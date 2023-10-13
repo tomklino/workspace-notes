@@ -13,7 +13,7 @@
                         class="shadow appearance-none border rounded w-14 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                         id="days" type="text" placeholder="5"
                         v-model="days">
-                    <li class="btn" @click="test">Reload {{ days || 5 }} days</li>
+                    <li class="btn" @click="$notesLoader.refresh">Reload {{ days || 5 }} days</li>
                 </ul>
             </nav>
         </header>
@@ -26,9 +26,6 @@
 
 <script setup>
     const days = useState("days", () => 5)
-    function test(event) {
-        console.log("tests")
-    }
 </script>
 
 <style scoped>
