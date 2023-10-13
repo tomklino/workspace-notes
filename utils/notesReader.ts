@@ -38,7 +38,12 @@ function initNotesReader(datadir: string): NotesReader {
                     return resolve ([ err, null ])
                 }
                 return resolve ([ null,
-                    stdout.trim().split('\n').map(encodeURIComponent) ])
+                    stdout
+                        .trim()
+                        .split('\n')
+                        .map(encodeURIComponent)
+                        .filter(str => str.length > 0)
+                    ])
             })
         })
         return [ null, null ]

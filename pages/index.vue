@@ -2,24 +2,18 @@
     <div>
         <button
             class="btn"
-            v-on:click="reloadNotes"
-            >
+            v-on:click="refresh" >
         Reload {{ days || 5 }} days</button>
-        <NoteCard v-for="note in notes" :noteID=note :key="note"/>
+        <div v-if="!pending && notes.length > 0">
+            <NoteCard v-for="note in notes" :noteID=note :key="note"/>
+        </div>
     </div>
 </template>
 
 <script setup>
     const days = useState("days")
-    let notes = new Array()
-    await reloadNotes()
-
-    async function reloadNotes(event) {
-        console.log(`reloading ${days.value} days`)
-        let response = await useFetch(`/api/notes?days=${days.value}`)
-        notes = response.data
-        refreshNuxtData()
-    }
+    const { pending, data: notes, refresh } =
+        await useAsyncData('notes', () => $fetch(`/api/notes?days=${days.value}`))
 </script>
 
 <style lang="scss" scoped>
