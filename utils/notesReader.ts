@@ -18,6 +18,7 @@ export function useNotesReader() {
     }
     return _notesReader
 }
+
 function initNotesReader(datadir: string): NotesReader {
     async function readNote(id: string): Promise<ErrorTuple<string>> {
         const [ err, file ] = await readFile(datadir, id)
