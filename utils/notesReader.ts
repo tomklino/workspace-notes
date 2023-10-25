@@ -7,6 +7,7 @@ type ErrorTuple<T> = [Error|null,T|null]
 type NotesReader = {
     readNote: (id: string) => Promise<ErrorTuple<string>>,
     listNotes: (days: number) => Promise<ErrorTuple<string[]>>
+    bugNotes: (bug: string) => Promise<ErrorTuple<string[]>>
 }
 
 let _notesReader: null|NotesReader = null
@@ -28,6 +29,26 @@ function initNotesReader(datadir: string): NotesReader {
         return [ null, file ]
     }
 
+    async function bugNotes(bug: string): Promise<ErrorTuple<string[]>> {
+        // TODO This is insecure - replace this with js logic to iterate over files
+        const command = "grep -rI '^Bug: " + bug + "' | cut -d':' -f1"
+        return new Promise((resolve) => {
+            exec(command, { cwd: datadir, shell: '/bin/bash' }, (err, stdout) => {
+                if(err) {
+                    console.log(err)
+                    return resolve([ err, null ])
+                }
+                return resolve( [null,
+                    stdout
+                        .trim()
+                        .split('\n')
+                        .map(encodeURIComponent)
+                        .filter(str => str.length > 0)
+                ])
+            })
+        })
+    }
+
     async function listNotes(days: number): Promise<ErrorTuple<string[]>> {
         if(isNaN(days)) days = 5
         // TODO This is insecure - replace this with js logic to read files newer than `days` old, ordered by date
@@ -47,12 +68,12 @@ function initNotesReader(datadir: string): NotesReader {
                     ])
             })
         })
-        return [ null, null ]
     }
 
     return {
         readNote,
-        listNotes
+        listNotes,
+        bugNotes
     }
 }
 
