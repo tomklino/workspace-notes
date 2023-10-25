@@ -5,12 +5,12 @@ export default defineNuxtPlugin(async () => {
     const { pending, data: notes, refresh } =
         await useAsyncData('notes', () => {
             if(searchType.value === 'days')
-                return $fetch(`/api/notes?days=${days.value}`)
+                return $fetch(`/api/v1beta/notes?days=${days.value}`)
             if(searchType.value === 'bug')
-                return $fetch(`/api/notes?bug=${bug.value}`)
+                return $fetch(`/api/v1beta/notes?bug=${bug.value}`)
 
             // default
-            return $fetch(`/api/notes`)
+            return $fetch(`/api/v1beta/notes`)
         })
     return {
         provide: {
