@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-if="$notesLoader.pending">
-            <NoteCard v-for="note in $notesLoader.notes.value" :noteID=note :key="note"/>
+            <NoteCard v-for="note in $notesLoader.notes.value" :noteID=note :key="note" class="overflow-x-auto"/>
         </div>
     </div>
 </template>
