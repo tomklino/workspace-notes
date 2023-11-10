@@ -31,23 +31,31 @@ function initNotesReader(datadir: string): NotesReader {
     }
 
     async function bugNotes(bug: string): Promise<ErrorTuple<string[]>> {
-        // TODO This is insecure - replace this with js logic to iterate over files
-        const command = "grep -rI '^Bug: " + bug + "' | cut -d':' -f1"
-        return new Promise((resolve) => {
-            exec(command, { cwd: datadir, shell: '/bin/bash' }, (err, stdout) => {
-                if(err) {
-                    console.log(err)
-                    return resolve([ err, null ])
-                }
-                return resolve( [null,
-                    stdout
-                        .trim()
-                        .split('\n')
-                        .map(encodeURIComponent)
-                        .filter(str => str.length > 0)
-                ])
-            })
-        })
+        try {
+            const allNotes =
+                (await readdir(datadir, { recursive: true }))
+                .filter(note => note.endsWith('.txt') || note.endsWith('.md'))
+            const rawResults: string[] = []
+            await Promise.all(allNotes.map(async (note) =>{
+                if(await hasBugLabel(note, bug)) rawResults.push(note)
+            }))
+            const results = rawResults
+                .sort((a, b) => { return _dateOfNote(a) < _dateOfNote(b) ? -1 : 1 })
+                .reverse()
+                .map(r => encodeURIComponent(r))
+            return [ null, results ]
+        } catch (err: any) {
+            return [ err, null ]
+        }
+    }
+
+    async function hasBugLabel(note: string, bug: string): Promise<boolean> {
+        try {
+            const noteContents = await readFile(path.join(datadir, note), { encoding: 'utf-8' })
+            return noteContents.split('\n').some(line => line.trim() === `Bug: ${bug}`)
+        } catch (err: any) {
+            throw err
+        }
     }
 
     async function listNotes(days: number): Promise<ErrorTuple<string[]>> {
@@ -71,7 +79,7 @@ function initNotesReader(datadir: string): NotesReader {
         }
 
         const results = Array.from(foundNotes)
-            .sort((a, b) => { return _dateOfNote(a) < _dateOfNote(b) ? -1 : 1})
+            .sort((a, b) => { return _dateOfNote(a) < _dateOfNote(b) ? -1 : 1 })
             .reverse()
             .map(encodeURIComponent)
 
@@ -124,6 +132,6 @@ function initNotesReader(datadir: string): NotesReader {
     return {
         readNote,
         listNotes,
-        bugNotes
+        bugNotes,
     }
 }
