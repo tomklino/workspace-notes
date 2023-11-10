@@ -19,7 +19,7 @@
                                     <div
                                         :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']"
                                         @click="lookbackDisplay = '5 Days' ; days = 5; searchType = 'days'; $notesLoader.refresh()">
-                                        5 days
+                                        5 Days
                                     </div>
                                 </MenuItem>
                                 <MenuItem v-slot="{ active }">
@@ -68,7 +68,7 @@
     const days = useState("days", () => 5)
     const bug = useState("bug")
 
-    let lookbackDisplay = "5 days"
+    let lookbackDisplay = "5 Days"
 </script>
 
 <style scoped>

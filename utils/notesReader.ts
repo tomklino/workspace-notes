@@ -60,25 +60,30 @@ function initNotesReader(datadir: string): NotesReader {
 
     async function listNotes(days: number): Promise<ErrorTuple<string[]>> {
         if(isNaN(days)) days = 5
+        const lookupDates: Date[] = []
+        while(days >= 0)
+            lookupDates.push(_todayMinusDays(days--))
+
         const foundNotes: Set<string> = new Set()
-        while(days >= 0) {
-            // TODO: sequential, could be parrallel
-            let lookupDate = _todayMinusDays(days--)
+        await Promise.all(lookupDates.map(async (lookupDate: Date) => {
             let [ err, notes ] = await _getNotesForDate(lookupDate)
             if(err) {
-                if(err.message.startsWith('ENOENT')) continue
-                return [ err, null ]
+                if(err.message.startsWith('ENOENT')) return
+                console.error(
+                    "ERROR: unexpected error looking up notes for date",
+                    err)
             }
-            if(notes === null) continue
+            if(notes === null) return
+            notes.forEach(note => foundNotes.add(note))
+        }))
 
-            // TODO: sequential, could be parrallel
-            notes.forEach(async (note) => {
-                if(!await _isNoteEmpty(note))
-                    foundNotes.add(note)
-            })
-        }
+        const unsortedResults: string[] = []
+        await Promise.all(Array.from(foundNotes).map(async (note) => {
+            if(!await _isNoteEmpty(note))
+                unsortedResults.push(note)
+        }))
 
-        const results = Array.from(foundNotes)
+        const results = unsortedResults
             .sort((a, b) => { return _dateOfNote(a) < _dateOfNote(b) ? -1 : 1 })
             .reverse()
             .map(encodeURIComponent)
