@@ -1,7 +1,9 @@
 <template>
     <div class="container p-4 mx-0 my-5 shadow-md rounded-lg bg-white max-w-3xl divide-y">
-        <!--TODO display metadata on the note (date, tags, etc.)-->
-        <ul class="container w-full flex justify-end mb-2">
+        <ul class="container w-full flex justify-between mb-2">
+            <li class="container w-full flex justify-start mb-2 text-slate-700 text-sm">
+                {{ new Date(Date.parse(data.ISODateString)).toLocaleDateString('he-IL') }}
+            </li>
             <li
             class="cursor-pointer min-w-fit max-w-fit">
                 <label class="relative inline-flex items-center cursor-pointer">
@@ -22,7 +24,7 @@
         </ul>
         <div
             :class="[viewRaw ? 'font-mono text-slate-700 text-sm' : 'prose prose-a:text-blue-600', 'pt-2']"
-            v-html="viewRaw ? displayRaw(data) : $mdRenderer(data)">
+            v-html="viewRaw ? displayRaw(data.content) : $mdRenderer(data.content)">
         </div>
     </div>
 </template>

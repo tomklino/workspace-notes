@@ -4,8 +4,14 @@ import path from 'path'
 
 type ErrorTuple<T> = [Error|null,T|null]
 
+type Note = {
+    content: string,
+    ISODateString: string,
+    tags: Array<[ string, string ]>
+}
+
 type NotesReader = {
-    readNote: (id: string) => Promise<ErrorTuple<string>>,
+    readNote: (id: string) => Promise<ErrorTuple<Note>>,
     listNotes: (days: number) => Promise<ErrorTuple<string[]>>
     bugNotes: (bug: string) => Promise<ErrorTuple<string[]>>
 }
@@ -21,10 +27,18 @@ export function useNotesReader() {
 }
 
 function initNotesReader(datadir: string): NotesReader {
-    async function readNote(id: string): Promise<ErrorTuple<string>> {
+    async function readNote(id: string): Promise<ErrorTuple<Note>> {
         try {
-            const file = await readFile(path.join(datadir, decodeURIComponent(id)), 'utf-8')
-            return [ null, file ]
+            const fileContents =
+                await readFile(
+                    path.join(datadir, decodeURIComponent(id)), 'utf-8')
+            const note = {
+                content: fileContents,
+                ISODateString: _dateOfNote(id).toISOString(),
+                tags: []
+            }
+
+            return [ null, note ]
         } catch (err: any) {
             return [ err, null ]
         }
@@ -121,9 +135,14 @@ function initNotesReader(datadir: string): NotesReader {
             // parse date from note id format:
             // "2023/november.d/workspaces-2023-11-09/workspace-1.md"
             return new Date(
-                note.split('/')[2].split('-').slice(1).join('-')
+                decodeURIComponent(note)
+                    .split('/')[2]
+                    .split('-')
+                    .slice(1)
+                    .join('-')
                 )
         } catch (err: any) {
+            console.error("WARNING: Unable to parse date", note);
             return new Date()
         }
     }

@@ -7,10 +7,10 @@ export default defineEventHandler(async (event) => {
         return "## Invalid Note ID"
     }
     const noteID: string = decodeURIComponent(_id)
-    const [ err, contents ] = await notesReader.readNote(noteID)
+    const [ err, note ] = await notesReader.readNote(noteID)
     if(err) {
         console.error(err)
-        return "## 404"
+        return { content: "## 404" }
     }
-    return contents
+    return note
 })
