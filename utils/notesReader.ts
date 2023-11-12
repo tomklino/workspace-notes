@@ -122,6 +122,7 @@ function initNotesReader(datadir: string): NotesReader {
         try {
             const filesRaw = await readdir(notesFullPath)
             const files = filesRaw
+                .filter(f => f.endsWith('md') || f.endsWith('txt'))
                 .map(f => path.join(notesInternalPath, f))
                 .map(encodeURIComponent)
             return [ null, files ]
