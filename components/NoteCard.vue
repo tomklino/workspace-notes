@@ -43,7 +43,7 @@
     }
 
     function copy() {
-        navigator.clipboard.writeText(data.value)
+        navigator.clipboard.writeText(data.value.content)
         copyButtonText.value = "Copied!"
         setTimeout(() => { copyButtonText.value = "Copy"}, 5000)
     }
