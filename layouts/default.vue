@@ -36,6 +36,13 @@
                                         3 Months
                                     </div>
                                 </MenuItem>
+                                <MenuItem v-slot="{ active }">
+                                    <div
+                                        :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']"
+                                        @click="lookbackDisplay = '1 Year' ; days = 365; searchType = 'days'; $notesLoader.refresh()">
+                                        1 Year
+                                    </div>
+                                </MenuItem>
                                 </div>
                             </MenuItems>
                             </transition>
