@@ -1,11 +1,22 @@
 <template>
     <div>
-        <CodeEditor>sdfdsf</CodeEditor>
+        <ClientOnly>
+            <CodeEditor :languages="[['js']]"></CodeEditor>
+        </ClientOnly>
     </div>
 </template>
 
-<script setup>
+<script>
+import CodeEditor from "simple-code-editor";
+import { HighlightJS } from "highlight.js";
 
+export default {
+    name: 'About',
+    components: {
+        HighlightJS,
+        CodeEditor
+    }
+}
 </script>
 
 <style lang="scss" scoped>
