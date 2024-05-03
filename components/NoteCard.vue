@@ -27,21 +27,29 @@
             v-html="$mdRenderer(data.content)">
         </div>
 
-        <code v-if="viewRaw" v-html="data.content" v-highlight
+        <code v-if="viewRaw" v-highlight
+            contenteditable="true"
+            @input="updateContent"
             class="block whitespace-pre overflow-x-scroll">
+            {{ data.content }}
 
         </code>
     </div>
 </template>
 
 <script setup>
-    import { ref } from 'vue';
+    import { ref, render } from 'vue';
+    const { $mdRenderer } = useNuxtApp()
 
     const { noteID } = defineProps(['noteID'])
     const { data } = await useFetch(`/api/notes/${noteID}`)
 
     let viewRaw = ref(false)
     let copyButtonText = ref("Copy")
+
+    function updateContent(event) {
+        data.value.content = event.target.textContent;
+    }
 
     function copy() {
         navigator.clipboard.writeText(data.value.content)

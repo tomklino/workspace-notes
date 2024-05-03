@@ -8,7 +8,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     })
     nuxtApp.vueApp.directive('highlight', {
         mounted (el) {
-        hljs.highlightElement(el)
+            hljs.highlightElement(el)
         }
     })
 })
