@@ -22,10 +22,15 @@
                 </label>
             </li>
         </ul>
-        <div
+        <div v-if="!viewRaw"
             :class="[viewRaw ? 'font-mono text-slate-700 text-sm' : 'prose prose-a:text-blue-600', 'pt-2']"
-            v-html="viewRaw ? displayRaw(data.content) : $mdRenderer(data.content)">
+            v-html="$mdRenderer(data.content)">
         </div>
+
+        <code v-if="viewRaw" v-html="data.content"
+            class="block whitespace-pre overflow-x-scroll">
+
+        </code>
     </div>
 </template>
 
@@ -37,10 +42,6 @@
 
     let viewRaw = ref(false)
     let copyButtonText = ref("Copy")
-
-    function displayRaw(data) {
-        return data.split('\n').join('<br>')
-    }
 
     function copy() {
         navigator.clipboard.writeText(data.value.content)
