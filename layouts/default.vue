@@ -56,6 +56,7 @@
                         <input
                         class="shadow appearance-none border rounded h-8 w-[120px] py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                         id="bug" type="text" placeholder="b/"
+                        @keydown.enter="searchType = 'bug'; $notesLoader.refresh()"
                         v-model="bug">
                     </li>
                 </ul>
