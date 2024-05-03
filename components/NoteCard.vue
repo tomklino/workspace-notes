@@ -23,11 +23,11 @@
             </li>
         </ul>
         <div v-if="!viewRaw"
-            :class="[viewRaw ? 'font-mono text-slate-700 text-sm' : 'prose prose-a:text-blue-600', 'pt-2']"
+            class="prose prose-a:text-blue-600 pt-2"
             v-html="$mdRenderer(data.content)">
         </div>
 
-        <code v-if="viewRaw" v-html="data.content"
+        <code v-if="viewRaw" v-html="data.content" v-highlight
             class="block whitespace-pre overflow-x-scroll">
 
         </code>
@@ -51,5 +51,7 @@
 </script>
 
 <style lang="scss" scoped>
-
+.hljs-bullet {
+    color: red
+}
 </style>
