@@ -46,9 +46,22 @@
 
     let viewRaw = ref(false)
     let copyButtonText = ref("Copy")
+    let inactivityTimer;
 
     function updateContent(event) {
         data.value.content = event.target.textContent;
+
+        if(inactivityTimer) clearTimeout(inactivityTimer)
+        inactivityTimer = setTimeout(async () => {
+            const response = await $fetch(`/api/notes/${noteID}`, {
+                method: 'POST',
+                body: {
+                    content: data.value.content
+                }
+            })
+
+            inactivityTimer = undefined
+        }, 2000)
     }
 
     function copy() {

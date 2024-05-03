@@ -1,5 +1,5 @@
 import { exec } from 'child_process'
-import { readdir, readFile, stat } from 'node:fs/promises'
+import { readdir, readFile, stat, writeFile } from 'node:fs/promises'
 import path from 'path'
 
 type ErrorTuple<T> = [Error|null,T|null]
@@ -14,6 +14,7 @@ type NotesReader = {
     readNote: (id: string) => Promise<ErrorTuple<Note>>,
     listNotes: (days: number) => Promise<ErrorTuple<string[]>>
     bugNotes: (bug: string) => Promise<ErrorTuple<string[]>>
+    editNote: (id: string, content: string) => Promise<ErrorTuple<string>>
 }
 
 let _notesReader: null|NotesReader = null
@@ -105,6 +106,17 @@ function initNotesReader(datadir: string): NotesReader {
         return [ null, results ]
     }
 
+    async function editNote(id: string, content: string): Promise<ErrorTuple<string>> {
+        try {
+            await writeFile(
+                path.join(datadir, decodeURIComponent(id)),
+                content, 'utf-8')
+        } catch (err: any) {
+            return [ err, null ]
+        }
+        return [ null, id ]
+    }
+
     async function _isNoteEmpty(note: string): Promise<boolean> {
         const noteStat = await stat(path.join(datadir, decodeURIComponent(note)))
         return noteStat.size === 0
@@ -158,5 +170,6 @@ function initNotesReader(datadir: string): NotesReader {
         readNote,
         listNotes,
         bugNotes,
+        editNote
     }
 }
