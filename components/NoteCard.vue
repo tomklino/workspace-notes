@@ -59,7 +59,5 @@
 </script>
 
 <style lang="scss" scoped>
-.hljs-bullet {
-    color: red
-}
+
 </style>
