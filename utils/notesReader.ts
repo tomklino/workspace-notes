@@ -1,5 +1,5 @@
 import { exec } from 'child_process'
-import { readdir, readFile, stat, writeFile } from 'node:fs/promises'
+import { readdir, readFile, stat, writeFile, mkdir, open } from 'node:fs/promises'
 import path from 'path'
 
 type ErrorTuple<T> = [Error|null,T|null]
@@ -11,6 +11,7 @@ type Note = {
 }
 
 type NotesReader = {
+    createDailyNotes(numberOfNotes: number): Promise<ErrorTuple<string[]>>
     readNote: (id: string) => Promise<ErrorTuple<Note>>,
     listNotes: (days: number) => Promise<ErrorTuple<string[]>>
     bugNotes: (bug: string) => Promise<ErrorTuple<string[]>>
@@ -117,30 +118,75 @@ function initNotesReader(datadir: string): NotesReader {
         return [ null, id ]
     }
 
+    async function createDailyNotes(numberOfNotes: number): Promise<ErrorTuple<string[]>> {
+        const dailyDirectory = _getNotesDirForDate(new Date())
+        try {
+            await mkdir(path.join(datadir, dailyDirectory), { recursive: true })
+        } catch(err: any) {
+            return [ err, null ]
+        }
+
+        // create or extend number of notes in the dir to match `numberOfNotes`
+        // TODO will be much better if it's done concurrently
+        for(let i = 1; i <= numberOfNotes; i++) {
+            await _touchNote(path.join(
+                datadir,
+                dailyDirectory,
+                `workspace-${i}.md`))
+        }
+
+        // return the IDs of all files in the daily directory
+        try {
+            const notes = await _getNotesInDir(dailyDirectory)
+            return [ null, notes ]
+        } catch(err: any) {
+            return [ err, null]
+        }
+    }
+
+    async function _touchNote(note: string): Promise<boolean> {
+        let fh;
+        try {
+            fh = await open(note, 'w')
+        } finally {
+            fh?.close()
+            return true
+        }
+    }
+
     async function _isNoteEmpty(note: string): Promise<boolean> {
         const noteStat = await stat(path.join(datadir, decodeURIComponent(note)))
         return noteStat.size === 0
     }
 
     async function _getNotesForDate(date: Date): Promise<ErrorTuple<string[]>> {
+        const notesInternalPath = _getNotesDirForDate(date)
+
+        try {
+            const files = await _getNotesInDir(notesInternalPath)
+            return [ null, files ]
+        } catch (err: any) {
+            return [ err, null ]
+        }
+    }
+
+    async function _getNotesInDir(internalPath: string): Promise<string[]> {
+        const filesRaw = await readdir(path.join(datadir, internalPath))
+        return filesRaw
+            .filter(f => f.endsWith('md') || f.endsWith('txt'))
+            .map(f => path.join(internalPath, f))
+            .map(encodeURIComponent)
+    }
+
+    function _getNotesDirForDate(date: Date): string {
         const yearDir = String(date.getFullYear())
         const monthDir = date.toLocaleString('default', { month: 'long' })
             .toLowerCase()
             .concat('.d')
         const dayDir = `workspaces-${date.toISOString().split('T')[0]}`
-        const notesFullPath = path.join(datadir, yearDir, monthDir, dayDir)
         const notesInternalPath = path.join(yearDir, monthDir, dayDir)
 
-        try {
-            const filesRaw = await readdir(notesFullPath)
-            const files = filesRaw
-                .filter(f => f.endsWith('md') || f.endsWith('txt'))
-                .map(f => path.join(notesInternalPath, f))
-                .map(encodeURIComponent)
-            return [ null, files ]
-        } catch (err: any) {
-            return [ err, null ]
-        }
+        return notesInternalPath
     }
 
     function _dateOfNote(note: string): Date {
@@ -170,6 +216,7 @@ function initNotesReader(datadir: string): NotesReader {
         readNote,
         listNotes,
         bugNotes,
-        editNote
+        editNote,
+        createDailyNotes
     }
 }
