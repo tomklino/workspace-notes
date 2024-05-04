@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
         return "## Invalid Note ID"
     }
     const noteID: string = decodeURIComponent(_id)
+    console.log(`POST edit note ${noteID}`)
     const { content }: { content: string } = await readBody(event)
     const [ err, response ] = await notesReader.editNote(noteID, content)
     if(err) {
