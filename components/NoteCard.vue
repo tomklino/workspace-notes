@@ -41,10 +41,10 @@
     import { ref, render } from 'vue';
     const { $mdRenderer } = useNuxtApp()
 
-    const { noteID } = defineProps(['noteID'])
+    const { noteID, startRaw } = defineProps(['noteID', 'startRaw'])
     const { data } = await useFetch(`/api/notes/${noteID}`)
 
-    let viewRaw = ref(false)
+    let viewRaw = ref(startRaw? true : false)
     let copyButtonText = ref("Copy")
     let inactivityTimer;
 

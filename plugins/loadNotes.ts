@@ -12,12 +12,21 @@ export default defineNuxtPlugin(async () => {
             // default
             return $fetch(`/api/v1beta/notes`)
         })
+    function requestDaily() {
+        console.log("putting daily notes")
+        return $fetch(`/api/notes/daily?num=4`, {
+            method: 'PUT'
+        })
+    }
     return {
         provide: {
             notesLoader: {
                 pending,
                 notes,
                 refresh,
+            },
+            dailyNotes: {
+                requestDaily
             }
         }
     }

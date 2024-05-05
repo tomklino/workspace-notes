@@ -147,7 +147,7 @@ function initNotesReader(datadir: string): NotesReader {
     async function _touchNote(note: string): Promise<boolean> {
         let fh;
         try {
-            fh = await open(note, 'w')
+            fh = await open(note, 'a')
         } finally {
             fh?.close()
             return true
