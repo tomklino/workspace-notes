@@ -119,6 +119,7 @@ function initNotesReader(datadir: string): NotesReader {
     }
 
     async function createDailyNotes(numberOfNotes: number): Promise<ErrorTuple<string[]>> {
+        // TODO new date should be with the local TZ
         const dailyDirectory = _getNotesDirForDate(new Date())
         try {
             await mkdir(path.join(datadir, dailyDirectory), { recursive: true })

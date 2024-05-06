@@ -1,5 +1,5 @@
 <template>
-    <div class="container p-4 mx-0 my-5 shadow-md rounded-lg bg-white max-w-3xl divide-y">
+    <div class="container flex flex-col p-4 mx-0 shadow-md rounded-lg bg-white divide-y">
         <ul class="container w-full flex justify-between mb-2">
             <li class="container w-full flex justify-start mb-2 text-slate-700 text-sm">
                 {{ new Date(Date.parse(data.ISODateString)).toLocaleDateString('he-IL') }}
@@ -30,7 +30,7 @@
         <code v-if="viewRaw" v-highlight
             contenteditable="true"
             @input="updateContent"
-            class="block whitespace-pre overflow-x-scroll">
+            class="block whitespace-pre overflow-x-scroll flex-1">
             {{ data.content }}
 
         </code>
@@ -44,7 +44,7 @@
     const { noteID, startRaw } = defineProps(['noteID', 'startRaw'])
     const { data } = await useFetch(`/api/notes/${noteID}`)
 
-    let viewRaw = ref(startRaw? true : false)
+    let viewRaw = ref(startRaw ? true : false)
     let copyButtonText = ref("Copy")
     let inactivityTimer;
 

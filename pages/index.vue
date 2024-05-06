@@ -2,7 +2,7 @@
     <div>
         <div v-if="$notesLoader.pending">
             <NoteCard v-for="note in $notesLoader.notes.value"
-                :noteID=note :key="note" class="overflow-x-auto"/>
+                :noteID=note :key="note" class="overflow-x-auto mb-5"/>
         </div>
     </div>
 </template>
