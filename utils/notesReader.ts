@@ -118,8 +118,8 @@ function initNotesReader(datadir: string): NotesReader {
         return [ null, id ]
     }
 
+    //TODO need to accept date from user instead of creating a new Date
     async function createDailyNotes(numberOfNotes: number): Promise<ErrorTuple<string[]>> {
-        // TODO new date should be with the local TZ
         const dailyDirectory = _getNotesDirForDate(new Date())
         try {
             await mkdir(path.join(datadir, dailyDirectory), { recursive: true })
@@ -180,11 +180,16 @@ function initNotesReader(datadir: string): NotesReader {
     }
 
     function _getNotesDirForDate(date: Date): string {
-        const yearDir = String(date.getFullYear())
-        const monthDir = date.toLocaleString('default', { month: 'long' })
+        const UTCDate = new Date(Date.UTC(
+            date.getFullYear(),
+            date.getMonth(),
+            date.getDate()))
+        const yearDir = String(UTCDate.getFullYear())
+        const monthDir = UTCDate.toLocaleString('default', { month: 'long' })
             .toLowerCase()
             .concat('.d')
-        const dayDir = `workspaces-${date.toISOString().split('T')[0]}`
+        const ISODate = UTCDate.toISOString().split('T')[0]
+        const dayDir = `workspaces-${ISODate}`
         const notesInternalPath = path.join(yearDir, monthDir, dayDir)
 
         return notesInternalPath
@@ -207,6 +212,7 @@ function initNotesReader(datadir: string): NotesReader {
         }
     }
 
+    // TODO need to replace this with _dateMinusDays(date: Date, days: number)
     function _todayMinusDays(days: number): Date {
         const d = new Date()
         d.setDate(d.getDate() - days)
