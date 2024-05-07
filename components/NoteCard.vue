@@ -5,22 +5,24 @@
                 {{ new Date(Date.parse(data.ISODateString)).toLocaleDateString('he-IL') }}
             </li>
             <li class="w-full justify-start ml-2">{{ $titleOf(data.content) }}</li>
-            <li
-            class="cursor-pointer min-w-fit max-w-fit">
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" v-model="viewRaw" class="sr-only peer">
-                    <div
-                        class="w-8 h-4 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-[#12b488] peer-checked:ring-1"></div>
-                    <span class="ml-3 text-sm font-medium text-gray-500 dark:text-gray-300">Raw</span>
-                </label>
-            </li>
-            <li
-                :class="[copyButtonText === 'Copy' ? '' : 'bg-[#12b488]', 'px-2 mx-2 w-[60px] ring-1 rounded text-center cursor-pointer']"
-                @click="copy">
-                <label
-                    :class="[copyButtonText === 'Copy' ? 'text-slate-700' : 'text-white font-semibold', 'cursor-pointer text-sm']">
-                    {{ copyButtonText }}
-                </label>
+            <li :class="[hideButtons ? 'hidden' : '', 'flex']">
+                <div
+                class="cursor-pointer min-w-fit max-w-fit">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" v-model="viewRaw" class="sr-only peer">
+                        <div
+                            class="w-8 h-4 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-[#12b488] peer-checked:ring-1"></div>
+                        <span class="ml-3 text-sm font-medium text-gray-500 dark:text-gray-300">Raw</span>
+                    </label>
+                </div>
+                <div
+                    :class="[copyButtonText === 'Copy' ? '' : 'bg-[#12b488]', 'px-2 mx-2 w-[60px] ring-1 rounded text-center cursor-pointer']"
+                    @click="copy">
+                    <label
+                        :class="[copyButtonText === 'Copy' ? 'text-slate-700' : 'text-white font-semibold', 'cursor-pointer text-sm']">
+                        {{ copyButtonText }}
+                    </label>
+                </div>
             </li>
         </ul>
         <div v-if="!viewRaw"
@@ -42,7 +44,7 @@
     import { ref, render } from 'vue';
     const { $mdRenderer, $titleOf } = useNuxtApp()
 
-    const { noteID, startRaw } = defineProps(['noteID', 'startRaw'])
+    const { noteID, startRaw, hideButtons } = defineProps(['noteID', 'startRaw', 'hideButtons'])
     const { data } = await useFetch(`/api/notes/${noteID}`)
 
     let viewRaw = ref(startRaw ? true : false)
