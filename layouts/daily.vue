@@ -8,6 +8,8 @@
 
 </script>
 
-<style scoped>
-
+<style>
+body {
+    overflow-y: hidden;
+}
 </style>
