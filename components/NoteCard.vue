@@ -31,7 +31,7 @@
         </div>
 
         <code v-if="viewRaw" v-highlight
-            contenteditable="true"
+            :contenteditable=editable
             @input="updateContent"
             class="block whitespace-pre overflow-x-scroll flex-1">
             {{ data.content }}
@@ -51,6 +51,10 @@
             noteActive: {
                 type: Boolean,
                 default: true
+            },
+            editable: {
+                type: Boolean,
+                default: false
             }
         })
     const { data } = await useFetch(`/api/notes/${noteID}`)
