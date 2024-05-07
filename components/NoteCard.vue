@@ -1,5 +1,5 @@
 <template>
-    <div :class="[noteActive ? 'bg-white' : 'bg-slate-200', 'flex flex-col p-4 mx-0 shadow-md rounded-lg divide-y']">
+    <div :class="[noteActive ? 'bg-white' : 'bg-slate-200 hover:cursor-pointer', 'flex flex-col p-4 mx-0 shadow-md rounded-lg divide-y']">
         <ul class="w-full flex justify-between mb-2">
             <li class="flex justify-start mb-2 text-slate-700 text-sm">
                 {{ new Date(Date.parse(data.ISODateString)).toLocaleDateString('he-IL') }}
