@@ -1,5 +1,6 @@
 {
-  "name": "nuxt-app",
+  "name": "workspace-notes",
+  "version": "0.2.1",
   "private": true,
   "type": "module",
   "scripts": {

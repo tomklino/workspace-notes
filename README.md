@@ -1,23 +1,14 @@
-# Nuxt 3 Minimal Starter
+# Workspace Notes
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+An app to keep daily notes for multi-tasker requirements
+
 
 ## Setup
 
 Make sure to install the dependencies:
 
 ```bash
-# npm
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
 ```
 
 ## Development Server
@@ -25,51 +16,33 @@ bun install
 Start the development server on `http://localhost:3000`:
 
 ```bash
-# npm
+cp -r /home/tomklino/notes /tmp
+export DATA_DIR=/tmp/notes
 npm run dev
-
-# pnpm
-pnpm run dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
 
-## Production
+## Build for local use
 
-Build the application for production:
+Build the application for local use:
 
-```bash
-# npm
-npm run build
+1. Bump the version in the `package.json` file
+2. From the repository root direcotyr, run:
 
-# pnpm
-pnpm run build
+    ```bash
+    version=$(jq -r '.version' package.json)
+    npm run build
+    cp -r .output ~/workspace-notes-builds/v${version}
+    ```
 
-# yarn
-yarn build
+3. In `~/.zshrc`, update the function `notes-browser`:
 
-# bun
-bun run build
+```
+function notes-browser() {
+    version=v0.2.0
+    HOST=localhost NUXT_DATA_DIR=${HOME}/notes node ${HOME}/workspace-notes-builds/${version}/server/index.mjs
+}
 ```
 
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm run preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
+## Nuxt Documentation
 
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
