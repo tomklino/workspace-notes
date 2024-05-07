@@ -26,7 +26,7 @@
             </li>
         </ul>
         <div v-if="!viewRaw"
-            class="prose prose-a:text-blue-600 pt-2"
+            class="prose max-w-none prose-a:text-blue-600 pt-2"
             v-html="$mdRenderer(data.content)">
         </div>
 

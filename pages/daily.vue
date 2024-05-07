@@ -1,7 +1,7 @@
 <template>
     <div class="h-screen flex flex-col space-y-2 w-full no-scrollbar">
         <NoteCard v-for="(note, i) in dailyNotes"
-            :noteID=note :key="note" startRaw=true :noteActive="i === active"
+            :noteID=note :key="note" startRaw :noteActive="i === active"
             @click="active = i"
             :class="[i === active ? 'flex-1' : 'overflow-y-hidden' , 'basis-12 overflow-x-auto']"/>
     </div>
