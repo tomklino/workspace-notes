@@ -1,9 +1,10 @@
 <template>
     <div class="flex flex-col p-4 mx-0 shadow-md rounded-lg bg-white divide-y">
         <ul class="w-full flex justify-between mb-2">
-            <li class="w-full flex justify-start mb-2 text-slate-700 text-sm">
+            <li class="flex justify-start mb-2 text-slate-700 text-sm">
                 {{ new Date(Date.parse(data.ISODateString)).toLocaleDateString('he-IL') }}
             </li>
+            <li class="w-full justify-start ml-2">{{ $titleOf(data.content) }}</li>
             <li
             class="cursor-pointer min-w-fit max-w-fit">
                 <label class="relative inline-flex items-center cursor-pointer">
@@ -39,7 +40,7 @@
 
 <script setup>
     import { ref, render } from 'vue';
-    const { $mdRenderer } = useNuxtApp()
+    const { $mdRenderer, $titleOf } = useNuxtApp()
 
     const { noteID, startRaw } = defineProps(['noteID', 'startRaw'])
     const { data } = await useFetch(`/api/notes/${noteID}`)
