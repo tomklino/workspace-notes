@@ -1,14 +1,11 @@
 <template>
-    <div>
-        <div v-if="$notesLoader.pending">
-            <NoteCard v-for="note in $notesLoader.notes.value"
-                :noteID=note :key="note" class="overflow-x-auto mb-5"/>
-        </div>
+    <div v-for="note in $notesLoader.notes.value" :key="note">
+       <NoteCard :noteID=note class="overflow-x-auto mb-5"/>
     </div>
 </template>
 
 <script setup>
-    const days = useState("days")
+
 </script>
 
 <style lang="scss" scoped>

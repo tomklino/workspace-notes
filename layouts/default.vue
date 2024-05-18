@@ -18,28 +18,28 @@
                                 <MenuItem v-slot="{ active }">
                                     <div
                                         :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']"
-                                        @click="lookbackDisplay = '5 Days' ; days = 5; searchType = 'days'; $notesLoader.refresh()">
+                                        @click="lookbackDisplay = '5 Days' ; days = 5; searchType = 'days'">
                                         5 Days
                                     </div>
                                 </MenuItem>
                                 <MenuItem v-slot="{ active }">
                                     <div
                                         :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']"
-                                        @click="lookbackDisplay = '4 Weeks' ; days = 28; searchType = 'days'; $notesLoader.refresh()">
+                                        @click="lookbackDisplay = '4 Weeks' ; days = 28; searchType = 'days'">
                                         4 Weeks
                                     </div>
                                 </MenuItem>
                                 <MenuItem v-slot="{ active }">
                                     <div
                                         :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']"
-                                        @click="lookbackDisplay = '3 Months' ; days = 90; searchType = 'days'; $notesLoader.refresh()">
+                                        @click="lookbackDisplay = '3 Months' ; days = 90; searchType = 'days'">
                                         3 Months
                                     </div>
                                 </MenuItem>
                                 <MenuItem v-slot="{ active }">
                                     <div
                                         :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']"
-                                        @click="lookbackDisplay = '1 Year' ; days = 365; searchType = 'days'; $notesLoader.refresh()">
+                                        @click="lookbackDisplay = '1 Year' ; days = 365; searchType = 'days'">
                                         1 Year
                                     </div>
                                 </MenuItem>
@@ -51,12 +51,13 @@
                     <li class="min-w-min">
                         <div
                             :class="[searchType === 'bug' ? 'bg-[#12b488] text-white font-semibold' : 'bg-white text-gray-900 ring-1 ring-inset ring-gray-300', 'inline-flex w-18 mx-4 justify-center rounded-md px-3 py-2 text-sm cursor-pointer']"
-                            @click="searchType = 'bug'; $notesLoader.refresh()">Search bug
+                            @click="searchType = 'bug';">Search bug
                         </div>
                         <input
                         class="shadow appearance-none border rounded h-8 w-[120px] py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                         id="bug" type="text" placeholder="b/"
-                        @keydown.enter="searchType = 'bug'; $notesLoader.refresh()"
+                        @keydown.enter="searchType = 'bug';"
+                        @input="event => searchType = event.target.value === '' ? 'days' : 'bug' "
                         v-model="bug">
                     </li>
                 </ul>

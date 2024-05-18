@@ -4,14 +4,17 @@ export default defineNuxtPlugin(async () => {
     const bug = useState('bug')
     const { pending, data: notes, refresh } =
         await useAsyncData('notes', () => {
-            if(searchType.value === 'days')
-                return $fetch(`/api/v1beta/notes?days=${days.value}`)
-            if(searchType.value === 'bug')
-                return $fetch(`/api/v1beta/notes?bug=${bug.value}`)
-
-            // default
-            return $fetch(`/api/v1beta/notes`)
+            return $fetch(`/api/v1beta/notes`, {
+                query: {
+                    days: searchType.value === 'days' ? days.value : null,
+                    bug: searchType.value === 'bug' ? bug.value : null
+                }
+            })
+        },
+        {
+            watch: [days, bug, searchType],
         })
+
     function requestDaily() {
         console.log("putting daily notes")
         return $fetch(`/api/notes/daily?num=4`, {
