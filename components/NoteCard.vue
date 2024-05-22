@@ -1,7 +1,7 @@
 <template>
-    <div :class="[noteActive ? 'bg-white' : 'bg-slate-200 hover:cursor-pointer', 'flex flex-col p-4 mx-0 shadow-md rounded-lg divide-y']">
-        <ul class="w-full flex justify-between mb-2">
-            <li class="flex justify-start mb-2 text-slate-700 text-sm">
+    <div :class="[noteActive ? 'bg-white' : 'bg-slate-200 hover:cursor-pointer', 'flex flex-col pt-3 px-4 mx-0 shadow-md rounded-lg divide-y']">
+        <ul class="w-full flex justify-between items-baseline mb-3">
+            <li class=" text-slate-700 text-sm">
                 {{ new Date(Date.parse(data.ISODateString)).toLocaleDateString('he-IL') }}
             </li>
             <li class="w-full justify-start ml-2">{{ $titleOf(data.content) }}</li>
@@ -16,7 +16,7 @@
                     </label>
                 </div>
                 <div
-                    :class="[copyButtonText === 'Copy' ? '' : 'bg-[#12b488]', 'px-2 mx-2 w-[60px] ring-1 rounded text-center cursor-pointer']"
+                    :class="[copyButtonText === 'Copy' ? '' : 'bg-[#12b488]', 'px-2 mx-2 w-[60px] ring-1 rounded text-center cursor-pointer flex justify-center items-center']"
                     @click="copy">
                     <label
                         :class="[copyButtonText === 'Copy' ? 'text-slate-700' : 'text-white font-semibold', 'cursor-pointer text-sm']">
@@ -31,9 +31,10 @@
         </div>
 
         <code v-if="viewRaw" v-highlight
-            :contenteditable=editable
-            @input="updateContent"
-            class="block whitespace-pre overflow-x-scroll flex-1">
+        :contenteditable=editable
+        @input="updateContent"
+        @keydown.enter="slideLeft"
+            class="block whitespace-pre overflow-x-scroll flex-1 mb-3">
             {{ data.content }}
 
         </code>
@@ -62,6 +63,19 @@
     let viewRaw = ref(startRaw ? true : false)
     let copyButtonText = ref("Copy")
     let inactivityTimer;
+
+    function slideLeft() {
+        const element = document.querySelector('.block.whitespace-pre.overflow-x-scroll.flex-1')
+        if (element) {
+            console.log('sliding...')
+            element.scrollTo({
+                left: 0,
+                behavior: 'smooth'
+            })
+        } else {
+            console.error('Could not find element to scroll')
+        }
+    }
 
     function updateContent(event) {
         data.value.content = event.target.textContent;
