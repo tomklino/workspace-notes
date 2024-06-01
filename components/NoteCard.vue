@@ -64,17 +64,11 @@
     let copyButtonText = ref("Copy")
     let inactivityTimer;
 
-    function slideLeft() {
-        const element = document.querySelector('.block.whitespace-pre.overflow-x-scroll.flex-1')
-        if (element) {
-            console.log('sliding...')
-            element.scrollTo({
-                left: 0,
-                behavior: 'smooth'
-            })
-        } else {
-            console.error('Could not find element to scroll')
-        }
+    function slideLeft(event) {
+        event.target?.scrollTo({
+            left: 0,
+            behavior: 'smooth'
+        })
     }
 
     function updateContent(event) {

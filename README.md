@@ -21,6 +21,12 @@ export DATA_DIR=/tmp/notes
 npm run dev
 ```
 
+In windows do that
+
+```ps
+$env:DATA_DIR='C:\Users\USER\Documents\Notes'
+```
+
 ## Build for local use
 
 Build the application for local use:
