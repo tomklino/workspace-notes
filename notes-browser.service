@@ -1,0 +1,11 @@
+[Service]
+Type=simple
+Environment="verson=v0.2.1 DATA_DIR=/home/tom-tikal/notes HOST=localhost"
+WorkingDirectory=/home/tom-tikal/notes
+ExecStart=/usr/local/bin/node /home/tom-tikal/workspace-notes-builds/v0.2.1/server/index.mjs
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
