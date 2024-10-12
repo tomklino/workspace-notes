@@ -42,6 +42,8 @@
 
 <script setup>
     import { ref, render } from 'vue';
+    import hljs from 'highlight.js'
+
     const { $mdRenderer, $titleOf } = useNuxtApp()
 
     const { noteID, startRaw, noteActive } = defineProps(
@@ -66,6 +68,16 @@
     function updateContent(event) {
         data.value.content = event.target.textContent;
 
+        let selection = getSelection(event.target)
+        let highlightedContent = hljs.highlight(
+            event.target.textContent,
+            { language: "md" }).value
+
+        if(event.target.innerHTML != highlightedContent.replaceAll("&#x27;", '\'').replaceAll("&quot;", '"')) {
+            event.target.innerHTML = highlightedContent
+            restoreSelection(event.target, ...selection)
+        }
+
         if(inactivityTimer) clearTimeout(inactivityTimer)
         inactivityTimer = setTimeout(async () => {
             const response = await $fetch(`/api/notes/${noteID}`, {
@@ -77,6 +89,68 @@
 
             inactivityTimer = undefined
         }, 2000)
+    }
+
+    function getSelection(targetElement) {
+        const sel = window.getSelection();
+        const textSegments = getTextSegments(targetElement);
+        let anchorIndex = null;
+        let focusIndex = null;
+        let currentIndex = 0;
+        textSegments.forEach(({text, node}) => {
+            if (node === sel.anchorNode) {
+                anchorIndex = currentIndex + sel.anchorOffset;
+            }
+            if (node === sel.focusNode) {
+                focusIndex = currentIndex + sel.focusOffset;
+            }
+            currentIndex += text.length;
+        });
+
+        return [ anchorIndex, focusIndex ]
+    }
+
+    function restoreSelection(targetElement, absoluteAnchorIndex, absoluteFocusIndex) {
+        const sel = window.getSelection();
+        const textSegments = getTextSegments(targetElement);
+        let anchorNode = targetElement;
+        let anchorIndex = 0;
+        let focusNode = targetElement;
+        let focusIndex = 0;
+        let currentIndex = 0;
+        textSegments.forEach(({text, node}) => {
+            const startIndexOfNode = currentIndex;
+            const endIndexOfNode = startIndexOfNode + text.length;
+            if (startIndexOfNode <= absoluteAnchorIndex && absoluteAnchorIndex <= endIndexOfNode) {
+                anchorNode = node;
+                anchorIndex = absoluteAnchorIndex - startIndexOfNode;
+            }
+            if (startIndexOfNode <= absoluteFocusIndex && absoluteFocusIndex <= endIndexOfNode) {
+                focusNode = node;
+                focusIndex = absoluteFocusIndex - startIndexOfNode;
+            }
+            currentIndex += text.length;
+        });
+        sel.setBaseAndExtent(anchorNode, anchorIndex, focusNode, focusIndex);
+    }
+
+    function getTextSegments(element) {
+        const textSegments = [];
+        Array.from(element.childNodes).forEach((node) => {
+            switch(node.nodeType) {
+                case Node.TEXT_NODE:
+                    textSegments.push({text: node.nodeValue, node});
+                    break;
+
+                case Node.ELEMENT_NODE:
+                    textSegments.splice(textSegments.length, 0, ...(getTextSegments(node)));
+                    break;
+
+                default:
+                    throw new Error(`Unexpected node type: ${node.nodeType}`);
+            }
+        });
+        return textSegments;
     }
 
     function copy() {
