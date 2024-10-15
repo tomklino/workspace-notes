@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   runtimeConfig: {
-    //TODO read from external source (env var, external conf file)
+    // to set: `export NUXT_DATA_DIR=value`
     dataDir: process.env['DATA_DIR']
   },
   devtools: { enabled: true },
