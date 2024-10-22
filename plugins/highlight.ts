@@ -20,16 +20,23 @@ export default defineNuxtPlugin((nuxtApp) => {
             highlightContent: (element: HTMLElement): void => {
                 if(element.textContent === null) return // nothing to do
                 const selection = getSelection(element)
-                console.log(`saved selection to ${selection}`);
+
+                let rawText = element.textContent
+
+                // hack: append a new line if the cursor is at the last line
+                // and the line is empty (resulting in the anchorNode being
+                // the parent node)
+                if (window.getSelection()?.anchorNode === element) {
+                    rawText = rawText + "\n"
+                }
 
                 const highlightedContent = hljs.highlight(
-                    element.textContent, { language: "md" }).value
+                    rawText, { language: "md" }).value
 
                 if(contentsMatch(element.innerHTML, highlightedContent))
                     return; // nothing to do
 
                 element.innerHTML = highlightedContent
-                console.log(`selection restored to ${selection}`);
 
                 restoreSelection(element, ...selection)
             }
@@ -69,6 +76,12 @@ function getSelection(targetElement: HTMLElement): [number, number] {
         if (text !== null) currentIndex += text.length;
     });
 
+    // hack - when the last line gets deleted, the selection jumps
+    // to the parent, and no matches are found among the text elements
+    if(sel.anchorNode === targetElement ||
+        sel.focusNode === targetElement) {
+        return [ currentIndex, currentIndex ]
+    }
     return [ anchorIndex, focusIndex ]
 }
 
