@@ -17,7 +17,7 @@ Start the development server on `http://localhost:3000`:
 
 ```bash
 cp -r /home/tomklino/notes /tmp
-export DATA_DIR=/tmp/notes
+export NUXT_DATA_DIR=/tmp/notes
 npm run dev
 ```
 
@@ -42,7 +42,3 @@ function notes-browser() {
     HOST=localhost NUXT_DATA_DIR=${HOME}/notes node ${HOME}/workspace-notes-builds/${version}/server/index.mjs
 }
 ```
-
-## Nuxt Documentation
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
