@@ -31,7 +31,7 @@
         </div>
 
         <code v-if="viewRaw" v-highlight
-            :contenteditable=editable
+            :contenteditable="editable ? 'plaintext-only' : 'false'"
             @input="updateContent"
             class="block whitespace-pre overflow-x-scroll flex-1">
             {{ data.content }}
