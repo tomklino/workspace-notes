@@ -18,6 +18,8 @@ Start the development server on `http://localhost:3000`:
 ```bash
 cp -r /home/tomklino/notes /tmp
 export NUXT_DATA_DIR=/tmp/notes
+# Optionally choose a different port
+export PORT=3030
 npm run dev
 ```
 
