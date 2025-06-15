@@ -28,7 +28,7 @@ npm run dev
 Build the application for local use:
 
 1. Bump the version in the `package.json` file
-2. From the repository root direcotyr, run:
+2. From the repository root directory, run:
 
     ```bash
     version=$(jq -r '.version' package.json)

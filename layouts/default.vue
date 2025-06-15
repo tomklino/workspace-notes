@@ -61,6 +61,11 @@
                         v-model="bug">
                     </li>
                 </ul>
+
+                <!-- Login Button on the right side -->
+                <div class="flex items-center">
+                    <LoginButton />
+                </div>
             </nav>
         </header>
 
