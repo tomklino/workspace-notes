@@ -1,5 +1,5 @@
 <template>
-    <div class="h-screen flex flex-col space-y-2 w-full no-scrollbar">
+    <div class="h-full flex flex-col space-y-2 w-full no-scrollbar">
         <NoteCard v-for="(note, i) in dailyNotes"
             :noteID=note :key="note" startRaw editable
             @click="active = i" :noteActive="i === active"
@@ -8,10 +8,6 @@
 </template>
 
 <script setup>
-    definePageMeta({
-        layout: 'daily'
-    })
-
     let active = ref(0)
     const { $dailyNotes } = useNuxtApp()
 
