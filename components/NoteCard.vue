@@ -59,7 +59,7 @@
                 default: false
             }
         })
-    const { data } = await useFetch(`/api/notes/${noteID}`)
+    const { data } = await useFetch(`/api/v1beta/notes/${noteID}`)
 
     let viewRaw = ref(startRaw ? true : false)
     let copyButtonText = ref("Copy")
@@ -72,7 +72,7 @@
 
         if(inactivityTimer) clearTimeout(inactivityTimer)
         inactivityTimer = setTimeout(async () => {
-            const response = await $fetch(`/api/notes/${noteID}`, {
+            const response = await $fetch(`/api/v1beta/notes/${noteID}`, {
                 method: 'POST',
                 body: {
                     content: data.value.content

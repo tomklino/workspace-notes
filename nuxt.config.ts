@@ -1,5 +1,8 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import fs from 'fs'
+
 export default defineNuxtConfig({
+  ssr: false,
   runtimeConfig: {
     // to set: `export NUXT_DATA_DIR=value`
     dataDir: process.env['DATA_DIR'],

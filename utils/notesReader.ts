@@ -1,4 +1,3 @@
-import { exec } from 'child_process'
 import { readdir, readFile, stat, writeFile, mkdir, open } from 'node:fs/promises'
 import path from 'path'
 
@@ -16,30 +15,38 @@ type NotesReader = {
     listNotes: (days: number) => Promise<ErrorTuple<string[]>>
     bugNotes: (bug: string) => Promise<ErrorTuple<string[]>>
     editNote: (id: string, content: string) => Promise<ErrorTuple<string>>
+    userId?: string
 }
+
+type CachedNoteReaders = { [userId: string]: NotesReader }
 
 let _notesReader: null|NotesReader = null
+let _cachedNoteReaders: CachedNoteReaders = {}
 
-export function useNotesReader() {
-    if(_notesReader === null) {
+export function useNotesReader(userId: string) {
+    if (!_cachedNoteReaders[userId]) {
         const config = useRuntimeConfig()
-        _notesReader = initNotesReader(config.dataDir)
+        const reader = initNotesReader(config.dataDir, userId)
+        // Attach userId for cache invalidation or reference
+        ;(reader as any).userId = userId
+        _cachedNoteReaders[userId] = reader
     }
-    return _notesReader
+    return _cachedNoteReaders[userId]
 }
 
-function initNotesReader(datadir: string): NotesReader {
+function initNotesReader(datadir: string, userId: string): NotesReader {
+    // All note operations are now scoped to a user-specific directory
+    const userDir = path.join(datadir, userId)
     async function readNote(id: string): Promise<ErrorTuple<Note>> {
         try {
             const fileContents =
                 await readFile(
-                    path.join(datadir, decodeURIComponent(id)), 'utf-8')
+                    path.join(userDir, decodeURIComponent(id)), 'utf-8')
             const note = {
                 content: fileContents,
                 ISODateString: _dateOfNote(id).toISOString(),
                 tags: []
             }
-
             return [ null, note ]
         } catch (err: any) {
             return [ err, null ]
@@ -49,7 +56,7 @@ function initNotesReader(datadir: string): NotesReader {
     async function bugNotes(bug: string): Promise<ErrorTuple<string[]>> {
         try {
             const allNotes =
-                (await readdir(datadir, { recursive: true }))
+                (await readdir(userDir, { recursive: true }))
                 .filter(note => note.endsWith('.txt') || note.endsWith('.md'))
             const rawResults: string[] = []
             await Promise.all(allNotes.map(async (note) =>{
@@ -67,7 +74,7 @@ function initNotesReader(datadir: string): NotesReader {
 
     async function hasBugLabel(note: string, bug: string): Promise<boolean> {
         try {
-            const noteContents = await readFile(path.join(datadir, note), { encoding: 'utf-8' })
+            const noteContents = await readFile(path.join(userDir, note), { encoding: 'utf-8' })
             return noteContents.split('\n').some(line => line.trim() === `Bug: ${bug}`)
         } catch (err: any) {
             throw err
@@ -110,7 +117,7 @@ function initNotesReader(datadir: string): NotesReader {
     async function editNote(id: string, content: string): Promise<ErrorTuple<string>> {
         try {
             await writeFile(
-                path.join(datadir, decodeURIComponent(id)),
+                path.join(userDir, decodeURIComponent(id)),
                 content, 'utf-8')
         } catch (err: any) {
             return [ err, null ]
@@ -122,7 +129,7 @@ function initNotesReader(datadir: string): NotesReader {
     async function createDailyNotes(numberOfNotes: number): Promise<ErrorTuple<string[]>> {
         const dailyDirectory = _getNotesDirForDate(new Date())
         try {
-            await mkdir(path.join(datadir, dailyDirectory), { recursive: true })
+            await mkdir(path.join(userDir, dailyDirectory), { recursive: true })
         } catch(err: any) {
             return [ err, null ]
         }
@@ -131,7 +138,7 @@ function initNotesReader(datadir: string): NotesReader {
         // TODO will be much better if it's done concurrently
         for(let i = 1; i <= numberOfNotes; i++) {
             await _touchNote(path.join(
-                datadir,
+                userDir,
                 dailyDirectory,
                 `workspace-${i}.md`))
         }
@@ -156,7 +163,7 @@ function initNotesReader(datadir: string): NotesReader {
     }
 
     async function _isNoteEmpty(note: string): Promise<boolean> {
-        const noteStat = await stat(path.join(datadir, decodeURIComponent(note)))
+        const noteStat = await stat(path.join(userDir, decodeURIComponent(note)))
         return noteStat.size === 0
     }
 
@@ -172,7 +179,7 @@ function initNotesReader(datadir: string): NotesReader {
     }
 
     async function _getNotesInDir(internalPath: string): Promise<string[]> {
-        const filesRaw = await readdir(path.join(datadir, internalPath))
+        const filesRaw = await readdir(path.join(userDir, internalPath))
         return filesRaw
             .filter(f => f.endsWith('md') || f.endsWith('txt'))
             .map(f => path.join(internalPath, f))

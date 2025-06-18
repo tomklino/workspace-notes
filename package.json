@@ -13,9 +13,7 @@
   "devDependencies": {
     "@nuxt/devtools": "latest",
     "@nuxtjs/tailwindcss": "^6.8.0",
-    "@sidebase/nuxt-auth": "^0.6.7",
     "@tailwindcss/typography": "^0.5.10",
-    "next-auth": "^4.21.1",
     "nuxt": "^3.7.4",
     "sass": "^1.68.0",
     "vue": "^3.3.4",
@@ -27,8 +25,10 @@
     "@mdit/plugin-tasklist": "^0.13.1",
     "@nuxt/content": "^3.5.1",
     "@nuxt/ui": "^2.9.0",
+    "@sidebase/nuxt-auth": "^0.10.1",
     "@types/markdown-it": "^13.0.2",
     "highlight.js": "^11.9.0",
-    "markdown-it": "^14.1.0"
+    "markdown-it": "^14.1.0",
+    "next-auth": "^4.21.1"
   }
 }
