@@ -64,11 +64,11 @@
                     <li class="min-w-min">
                         <div
                             :class="[searchType === 'bug' ? 'bg-[#12b488] text-white font-semibold' : 'bg-white text-gray-900 ring-1 ring-inset ring-gray-300', 'inline-flex w-18 mx-4 justify-center rounded-md px-3 py-2 text-sm cursor-pointer']"
-                            @click="searchType = 'bug'; $router.replace('/')">Search bug
+                            @click="searchType = 'bug'; $router.replace('/')">Search label
                         </div>
                         <input
                         class="shadow appearance-none border rounded h-8 w-[120px] py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        id="bug" type="text" placeholder="b/"
+                        id="bug" type="text" placeholder="label"
                         @keydown.enter="searchType = 'bug'"
                         @input="event => searchType = event.target.value === '' ? 'days' : 'bug'"
                         v-model="bug">

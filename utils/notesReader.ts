@@ -75,7 +75,9 @@ function initNotesReader(datadir: string, userId: string): NotesReader {
     async function hasBugLabel(note: string, bug: string): Promise<boolean> {
         try {
             const noteContents = await readFile(path.join(userDir, note), { encoding: 'utf-8' })
-            return noteContents.split('\n').some(line => line.trim() === `Bug: ${bug}`)
+            return noteContents.split('\n').some((line) => {
+                return line.trim() === `Bug: ${bug}` || line.trim() === `Label: ${bug}`
+            })
         } catch (err: any) {
             throw err
         }
