@@ -13,7 +13,7 @@ npm install
 
 ## Development Server
 
-Start the development server on `http://localhost:3000`:
+Start the development server on `http://localhost:3030`:
 
 ```bash
 cp -r /home/tomklino/notes /tmp

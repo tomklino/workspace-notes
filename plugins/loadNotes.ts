@@ -2,6 +2,7 @@ export default defineNuxtPlugin(async () => {
     const searchType = useState("searchType")
     const days = useState('days')
     const bug = useState('bug')
+
     const { pending, data: notes, refresh } =
         await useAsyncData('notes', () => {
             const params = new URLSearchParams()
@@ -15,9 +16,9 @@ export default defineNuxtPlugin(async () => {
             watch: [days, bug, searchType],
         })
 
-    function requestDaily() {
+    function requestDaily(notes: number = 4) {
         console.log("putting daily notes")
-        return $fetch(`/api/v1beta/notes/daily?num=4`, {
+        return $fetch(`/api/v1beta/notes/daily?num=${notes}`, {
             method: 'PUT'
         })
     }
