@@ -91,7 +91,10 @@
 <script setup>
     import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 
-    const searchType = useState("searchType", () => "days") // "days" or "bug" or "off"
+    const searchType = useState("searchType", () => {
+        const route = useRoute()
+        return route.path === '/daily' ? 'off' : 'days'
+    }) // "days" or "bug" or "off"
     const days = useState("days", () => 5)
     const bug = useState("bug")
 
