@@ -5,22 +5,34 @@
       <span>Loading...</span>
     </div>
 
-    <div v-else-if="status === 'authenticated'" class="flex items-center gap-4">
-      <div class="flex items-center gap-2">
+    <div v-else-if="status === 'authenticated'" class="relative flex items-center gap-4">
+      <div
+        @click="toggleDropdown"
+        class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+        ref="userInfo"
+      >
         <img
           v-if="data?.user?.image"
           :src="data.user.image"
           :alt="data.user.name || 'User'"
           class="w-8 h-8 rounded-full"
         >
-        <span class="font-medium">{{ data?.user?.name }}</span>
+        <span class="font-medium hidden lg:block">{{ data?.user?.name }}</span>
       </div>
-      <button
-        @click="signOut"
-        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+
+      <!-- Floating dropdown -->
+      <div
+        v-if="showDropdown"
+        class="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-md shadow-lg z-50 py-1 min-w-[120px]"
+        ref="dropdown"
       >
-        Sign Out
-      </button>
+        <button
+          @click="handleSignOut"
+          class="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 transition-colors"
+        >
+          Sign Out
+        </button>
+      </div>
     </div>
 
     <button
@@ -41,4 +53,39 @@
 
 <script setup>
 const { data, status, signIn, signOut } = useAuth()
+
+const showDropdown = ref(false)
+const userInfo = ref(null)
+const dropdown = ref(null)
+
+const toggleDropdown = () => {
+  showDropdown.value = !showDropdown.value
+}
+
+const handleSignOut = () => {
+  showDropdown.value = false
+  signOut()
+}
+
+// Handle outside clicks
+const handleClickOutside = (event) => {
+  if (showDropdown.value) {
+    const userInfoEl = userInfo.value
+    const dropdownEl = dropdown.value
+
+    if (userInfoEl && dropdownEl &&
+        !userInfoEl.contains(event.target) &&
+        !dropdownEl.contains(event.target)) {
+      showDropdown.value = false
+    }
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
