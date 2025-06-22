@@ -23,6 +23,30 @@ type CachedNoteReaders = { [userId: string]: NotesReader }
 let _notesReader: null|NotesReader = null
 let _cachedNoteReaders: CachedNoteReaders = {}
 
+/**
+ * Validates that a file path is within the allowed user directory
+ * Prevents path traversal attacks using .. sequences
+ */
+function validateSecurePath(userDir: string, requestedPath: string): string | null {
+    try {
+        // Decode the path first
+        const decodedPath = decodeURIComponent(requestedPath)
+
+        // Resolve the full path
+        const fullPath = path.resolve(path.join(userDir, decodedPath))
+        const normalizedUserDir = path.resolve(userDir)
+
+        // Check if the resolved path is within the user directory
+        if (!fullPath.startsWith(normalizedUserDir + path.sep) && fullPath !== normalizedUserDir) {
+            return null // Path traversal attempt detected
+        }
+
+        return fullPath
+    } catch (error) {
+        return null // Invalid path
+    }
+}
+
 export function useNotesReader(userId: string) {
     if (!_cachedNoteReaders[userId]) {
         const config = useRuntimeConfig()
@@ -39,9 +63,12 @@ function initNotesReader(datadir: string, userId: string): NotesReader {
     const userDir = path.join(datadir, userId)
     async function readNote(id: string): Promise<ErrorTuple<Note>> {
         try {
-            const fileContents =
-                await readFile(
-                    path.join(userDir, decodeURIComponent(id)), 'utf-8')
+            const safePath = validateSecurePath(userDir, id)
+            if (!safePath) {
+                return [ new Error('Invalid file path'), null ]
+            }
+
+            const fileContents = await readFile(safePath, 'utf-8')
             const note = {
                 content: fileContents,
                 ISODateString: _dateOfNote(id).toISOString(),
@@ -74,7 +101,12 @@ function initNotesReader(datadir: string, userId: string): NotesReader {
 
     async function hasBugLabel(note: string, bug: string): Promise<boolean> {
         try {
-            const noteContents = await readFile(path.join(userDir, note), { encoding: 'utf-8' })
+            const safePath = validateSecurePath(userDir, note)
+            if (!safePath) {
+                return false
+            }
+
+            const noteContents = await readFile(safePath, { encoding: 'utf-8' })
             return noteContents.split('\n').some((line) => {
                 return line.trim() === `Bug: ${bug}` || line.trim() === `Label: ${bug}`
             })
@@ -118,9 +150,12 @@ function initNotesReader(datadir: string, userId: string): NotesReader {
 
     async function editNote(id: string, content: string): Promise<ErrorTuple<string>> {
         try {
-            await writeFile(
-                path.join(userDir, decodeURIComponent(id)),
-                content, 'utf-8')
+            const safePath = validateSecurePath(userDir, id)
+            if (!safePath) {
+                return [ new Error('Invalid file path'), null ]
+            }
+
+            await writeFile(safePath, content, 'utf-8')
         } catch (err: any) {
             return [ err, null ]
         }
@@ -165,7 +200,12 @@ function initNotesReader(datadir: string, userId: string): NotesReader {
     }
 
     async function _isNoteEmpty(note: string): Promise<boolean> {
-        const noteStat = await stat(path.join(userDir, decodeURIComponent(note)))
+        const safePath = validateSecurePath(userDir, note)
+        if (!safePath) {
+            return true // Treat invalid paths as empty
+        }
+
+        const noteStat = await stat(safePath)
         return noteStat.size === 0
     }
 
