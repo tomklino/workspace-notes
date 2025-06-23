@@ -18,10 +18,15 @@ export default defineNuxtPlugin(async () => {
 
     function requestDaily(notes: number = 4) {
         console.log("putting daily notes")
-        return $fetch(`/api/v1beta/notes/daily?num=${notes}`, {
+        const effectiveDate = new Date()
+        const url = `/api/v1beta/notes/daily?num=${notes}&date=${
+            effectiveDate.toISOString().split('T')[0]
+        }`
+        return $fetch(url, {
             method: 'PUT'
         })
     }
+
     return {
         provide: {
             notesLoader: {

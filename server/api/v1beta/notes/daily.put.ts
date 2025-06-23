@@ -12,9 +12,17 @@ export default eventHandler(async (event) => {
     const userId = session.user.email as string
     const query = getQuery(event)
     const numberOfNotes = Number(query?.num)
+    const dateStr = query?.date as string | undefined
+    let date: Date | undefined
+    if (dateStr) {
+        const parsedDate = new Date(dateStr)
+        if (!isNaN(parsedDate.getTime())) {
+            date = parsedDate
+        }
+    }
 
     const notesReader = useNotesReader(userId)
-    const [ err, dailyNotes ] = await notesReader.createDailyNotes(numberOfNotes)
+    const [ err, dailyNotes ] = await notesReader.createDailyNotes(numberOfNotes, date)
     if(err) {
         console.error("Error while trying to create daily notes", err)
         throw createError({

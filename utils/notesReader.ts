@@ -10,7 +10,7 @@ type Note = {
 }
 
 type NotesReader = {
-    createDailyNotes(numberOfNotes: number): Promise<ErrorTuple<string[]>>
+    createDailyNotes(numberOfNotes: number, date?: Date): Promise<ErrorTuple<string[]>>
     readNote: (id: string) => Promise<ErrorTuple<Note>>,
     listNotes: (days: number) => Promise<ErrorTuple<string[]>>
     bugNotes: (bug: string) => Promise<ErrorTuple<string[]>>
@@ -162,9 +162,8 @@ function initNotesReader(datadir: string, userId: string): NotesReader {
         return [ null, id ]
     }
 
-    //TODO need to accept date from user instead of creating a new Date
-    async function createDailyNotes(numberOfNotes: number): Promise<ErrorTuple<string[]>> {
-        const dailyDirectory = _getNotesDirForDate(new Date())
+    async function createDailyNotes(numberOfNotes: number, date?: Date): Promise<ErrorTuple<string[]>> {
+        const dailyDirectory = _getNotesDirForDate(date || new Date())
         try {
             await mkdir(path.join(userDir, dailyDirectory), { recursive: true })
         } catch(err: any) {
