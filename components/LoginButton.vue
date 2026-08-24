@@ -1,6 +1,16 @@
 <template>
   <div>
-    <div v-if="status === 'loading'" class="flex items-center gap-2 px-4 py-2">
+    <div v-if="$localNotes.localMode.value" class="relative flex items-center gap-4">
+      <span class="font-medium">Local mode</span>
+      <button
+        @click="leaveLocalMode"
+        class="px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
+      >
+        Leave local mode
+      </button>
+    </div>
+
+    <div v-else-if="status === 'loading'" class="flex items-center gap-2 px-4 py-2">
       <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
       <span>Loading...</span>
     </div>
@@ -53,6 +63,12 @@
 
 <script setup>
 const { data, status, signIn, signOut } = useAuth()
+const { $localNotes } = useNuxtApp()
+
+const leaveLocalMode = async () => {
+  $localNotes.disable()
+  await navigateTo('/login')
+}
 
 const showDropdown = ref(false)
 const userInfo = ref(null)

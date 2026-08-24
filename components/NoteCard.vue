@@ -44,7 +44,7 @@
     import { ref, render } from 'vue';
     import hljs from 'highlight.js'
 
-    const { $mdRenderer, $titleOf, $highlightContent } = useNuxtApp()
+    const { $mdRenderer, $titleOf, $highlightContent, $localNotes } = useNuxtApp()
 
     const { noteID, startRaw, noteActive } = defineProps(
         {
@@ -59,7 +59,11 @@
                 default: false
             }
         })
-    const { data } = await useFetch(`/api/v1beta/notes/${noteID}`)
+    const data = ref($localNotes.localMode.value ? $localNotes.read(noteID) : await $fetch(`/api/v1beta/notes/${noteID}`))
+
+    watch($localNotes.localMode, async (isLocalMode) => {
+        data.value = isLocalMode ? $localNotes.read(noteID) : await $fetch(`/api/v1beta/notes/${noteID}`)
+    })
 
     let viewRaw = ref(startRaw ? true : false)
     let copyButtonText = ref("Copy")
@@ -72,13 +76,14 @@
 
         if(inactivityTimer) clearTimeout(inactivityTimer)
         inactivityTimer = setTimeout(async () => {
-            const response = await $fetch(`/api/v1beta/notes/${noteID}`, {
-                method: 'POST',
-                body: {
-                    content: data.value.content
-                }
-            })
-
+            if ($localNotes.localMode.value) {
+                $localNotes.save(noteID, data.value.content)
+            } else {
+                await $fetch(`/api/v1beta/notes/${noteID}`, {
+                    method: 'POST',
+                    body: { content: data.value.content }
+                })
+            }
             inactivityTimer = undefined
         }, 2000)
     }

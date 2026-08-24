@@ -11,6 +11,15 @@
       </div>
       <div class="mt-8 space-y-6">
         <LoginButton />
+        <button
+          @click="startLocalMode"
+          class="w-full px-4 py-2 border border-[#12b488] text-[#0d8b69] rounded-md hover:bg-[#12b488]/10 transition-colors"
+        >
+          Continue locally
+        </button>
+        <p class="text-center text-xs text-gray-500">
+          Notes stay only in this browser's local storage.
+        </p>
       </div>
     </div>
   </div>
@@ -19,6 +28,12 @@
 <script setup>
 // Redirect to home if already authenticated
 const { status } = useAuth()
+const { $localNotes } = useNuxtApp()
+
+const startLocalMode = async () => {
+  $localNotes.enable()
+  await navigateTo('/')
+}
 
 watch(status, (newStatus) => {
   if (newStatus === 'authenticated') {

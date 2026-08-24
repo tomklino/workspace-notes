@@ -1,7 +1,10 @@
-export default defineNuxtRouteMiddleware((to) => {
-  const { status } = useAuth()
+export default defineNuxtRouteMiddleware(async () => {
+  if (process.client && localStorage.getItem('workspace-notes.local-mode') === 'true') return
 
-  if (status.value === 'unauthenticated') {
+  const { getSession } = useAuth()
+  const session = await getSession()
+
+  if (!session?.user) {
     return navigateTo('/login')
   }
 })

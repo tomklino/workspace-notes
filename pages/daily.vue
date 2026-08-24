@@ -15,6 +15,8 @@
 </template>
 
 <script setup>
+    definePageMeta({ middleware: 'auth' })
+
     let active = ref(0)
     const { $dailyNotes } = useNuxtApp()
     const dailyNotesNumber = useState('dailyNotesNumber')
