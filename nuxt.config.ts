@@ -7,7 +7,12 @@ export default defineNuxtConfig({
     // to set: `export NUXT_DATA_DIR=value`
     dataDir: process.env['DATA_DIR'],
     // Auth secret - set via NUXT_AUTH_SECRET env var
-    authSecret: process.env['NUXT_AUTH_SECRET']
+    authSecret: process.env['NUXT_AUTH_SECRET'],
+    public: {
+      googleSignInEnabled: Boolean(
+        process.env['GOOGLE_CLIENT_ID'] && process.env['GOOGLE_CLIENT_SECRET']
+      )
+    }
   },
   devtools: { enabled: true },
   auth: {
