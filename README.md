@@ -20,6 +20,7 @@ cp -r /home/tomklino/notes /tmp
 export NUXT_DATA_DIR=/tmp/notes
 # Optionally choose a different port
 export PORT=3030
+nvm use 22 # currently there's an issue upgrading to node 24
 npm run dev
 ```
 
