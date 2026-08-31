@@ -27,7 +27,7 @@ PATH="$HOME/.nvm/versions/node/v22.23.1/bin:$PATH" npm run dev
 Set them in an untracked root `.env` file. For local development on the port selected by Nuxt:
 
 ```dotenv
-NUXT_AUTH_ORIGIN=http://localhost:3001
+NUXT_AUTH_ORIGIN=http://localhost:3030
 NUXT_AUTH_SECRET=<a-long-random-secret>
 ```
 
@@ -39,4 +39,10 @@ openssl rand -base64 32
 
 Use the public HTTPS application URL for `NUXT_AUTH_ORIGIN` in production, and set both values through the host's secret/environment configuration. Do not commit `.env`; `.env.example` documents the required variables. Restart Nuxt after changing environment values.
 
-Google sign-in additionally needs `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, plus a Google OAuth redirect URI matching the deployed/local auth callback route.
+Google sign-in additionally needs `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`. In Google Cloud Console, configure this authorized redirect URI exactly (including port):
+
+```text
+http://localhost:3030/api/auth/callback/google
+```
+
+For production, replace `http://localhost:3030` with the public HTTPS value of `NUXT_AUTH_ORIGIN`. The application hides Google sign-in when either credential is absent instead of sending users to Auth.js's empty provider page.

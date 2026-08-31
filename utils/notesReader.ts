@@ -50,6 +50,11 @@ function validateSecurePath(userDir: string, requestedPath: string): string | nu
 export function useNotesReader(userId: string) {
     if (!_cachedNoteReaders[userId]) {
         const config = useRuntimeConfig()
+        if(typeof config.dataDir !== 'string' || config.dataDir.length === 0) {
+            console.error("FATAL: refusing to initiate notes reader with no dataDir set")
+            throw new Error("Refusing to initiate notesReader with no dataDir")
+        }
+        console.info("Initializing notes reades in dataDir=", config.dataDir)
         const reader = initNotesReader(config.dataDir, userId)
         // Attach userId for cache invalidation or reference
         ;(reader as any).userId = userId
