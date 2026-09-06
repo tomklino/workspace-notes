@@ -1,0 +1,7 @@
+---
+notes_verify_expected_status_codes:
+  - 200
+  - 302
+notes_verify_retries: 12
+notes_verify_delay: 5
+notes_verify_tls: true

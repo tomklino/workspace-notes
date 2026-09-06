@@ -1,0 +1,5 @@
+---
+collections:
+  - name: azure.azcollection
+  - name: google.cloud
+  - name: community.docker

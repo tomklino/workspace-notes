@@ -1,0 +1,31 @@
+---
+workspace_notes_system_user: workspace-notes
+workspace_notes_system_uid: 991
+workspace_notes_system_gid: 991
+workspace_notes_base_dir: /opt/workspace-notes
+workspace_notes_data_dir: /var/lib/workspace-notes/notes
+workspace_notes_container_data_dir: /data/notes
+workspace_notes_compose_project_name: workspace-notes
+workspace_notes_container_name: workspace-notes
+workspace_notes_image: docker.io/tomklino/workspace-notes:latest
+workspace_notes_container_port: 3000
+workspace_notes_listen_address: 0.0.0.0
+workspace_notes_auth_secret: ""
+workspace_notes_google_client_id: ""
+workspace_notes_google_client_secret: ""
+workspace_notes_extra_environment: {}
+
+workspace_notes_share_bifrost_proxy: true
+workspace_notes_bifrost_project_dir: /opt/bifrost-stack
+workspace_notes_bifrost_caddy_dir: "{{ workspace_notes_bifrost_project_dir }}/caddy/caddy.d"
+workspace_notes_bifrost_caddy_service: caddy
+workspace_notes_bifrost_network_name: bifrost-stack_default
+
+workspace_notes_http_port: 80
+workspace_notes_https_port: 443
+workspace_notes_caddy_image: caddy:2
+workspace_notes_caddy_container_name: workspace-notes-caddy
+workspace_notes_caddy_config_dir_path: "{{ workspace_notes_base_dir }}/caddy"
+workspace_notes_caddy_routes_dir: "{{ workspace_notes_caddy_config_dir_path }}/caddy.d"
+workspace_notes_caddy_data_dir: "{{ workspace_notes_base_dir }}/caddy/data"
+workspace_notes_caddy_config_dir: "{{ workspace_notes_base_dir }}/caddy/config"

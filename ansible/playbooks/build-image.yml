@@ -1,0 +1,9 @@
+---
+- name: Build and publish the latest tagged Workspace Notes image
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  roles:
+    - role: notes_image
+      vars:
+        notes_image_build_missing: true

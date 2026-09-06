@@ -1,0 +1,20 @@
+---
+azure_vm_resource_group: workspace-notes
+azure_vm_location: israelcentral
+azure_vm_vnet_name: workspace-notes-vnet
+azure_vm_vnet_address_prefixes:
+  - 10.43.0.0/16
+azure_vm_subnet_name: default
+azure_vm_subnet_prefix: 10.43.1.0/24
+azure_vm_nsg_name: workspace-notes-nsg
+azure_vm_public_ip_name: workspace-notes-public-ip
+azure_vm_nic_name: workspace-notes-nic
+azure_vm_name: workspace-notes
+azure_vm_size: Standard_B2s
+azure_vm_image:
+  offer: 0001-com-ubuntu-server-jammy
+  publisher: Canonical
+  sku: 22_04-lts-gen2
+  version: latest
+azure_vm_admin_username: azureuser
+azure_vm_admin_ssh_public_key: ~/.ssh/id_rsa.pub

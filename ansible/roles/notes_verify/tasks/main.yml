@@ -1,0 +1,10 @@
+---
+- name: Verify public HTTPS endpoint
+  ansible.builtin.uri:
+    url: "https://{{ workspace_notes_domain_name }}"
+    status_code: "{{ notes_verify_expected_status_codes }}"
+    validate_certs: "{{ notes_verify_tls }}"
+  register: notes_verify_public_result
+  until: notes_verify_public_result.status in notes_verify_expected_status_codes
+  retries: "{{ notes_verify_retries }}"
+  delay: "{{ notes_verify_delay }}"

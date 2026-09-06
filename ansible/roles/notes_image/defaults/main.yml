@@ -1,0 +1,7 @@
+---
+notes_image_repository: docker.io/tomklino/workspace-notes
+notes_image_source_dir: "{{ playbook_dir }}/../.."
+notes_image_platform: linux/amd64,linux/arm64
+notes_image_registry_username: ""
+notes_image_registry_password: ""
+notes_image_build_missing: true

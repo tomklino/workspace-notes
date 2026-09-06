@@ -1,0 +1,66 @@
+---
+- name: Prepare the Workspace Notes target
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  roles:
+    - role: notes_image
+      vars:
+        notes_image_build_missing: false
+
+  tasks:
+    - name: Provision a dedicated Azure VM
+      when: workspace_notes_create_azure_vm | bool
+      ansible.builtin.include_role:
+        name: azure_vm
+
+    - name: Look up the existing Azure public IP
+      when:
+        - not (workspace_notes_create_azure_vm | bool)
+        - workspace_notes_existing_host | default('') | length == 0
+      azure.azcollection.azure_rm_publicipaddress_info:
+        resource_group: "{{ workspace_notes_existing_azure_resource_group }}"
+        name: "{{ workspace_notes_existing_azure_public_ip_name }}"
+      register: workspace_notes_existing_ip_info
+
+    - name: Select the target address
+      ansible.builtin.set_fact:
+        workspace_notes_target_address: >-
+          {{ azure_vm_public_ip
+             if workspace_notes_create_azure_vm | bool
+             else (workspace_notes_existing_host
+                   if workspace_notes_existing_host | default('') | length > 0
+                   else workspace_notes_existing_ip_info.publicipaddresses[0].ip_address) }}
+
+    - name: Add target to the in-memory inventory
+      ansible.builtin.add_host:
+        name: workspace_notes_target
+        groups: workspace_notes_hosts
+        ansible_host: "{{ workspace_notes_target_address }}"
+        ansible_user: >-
+          {{ azure_vm_admin_username
+             if workspace_notes_create_azure_vm | bool
+             else workspace_notes_existing_user }}
+        workspace_notes_image: "{{ notes_image_reference }}"
+
+    - name: Configure public DNS
+      ansible.builtin.include_role:
+        name: notes_dns
+      vars:
+        notes_dns_target: "{{ workspace_notes_target_address }}"
+
+    - name: Wait for target SSH
+      ansible.builtin.wait_for:
+        host: "{{ workspace_notes_target_address }}"
+        port: "{{ workspace_notes_ssh_port }}"
+        timeout: "{{ workspace_notes_ssh_wait_timeout }}"
+
+- name: Deploy Workspace Notes
+  hosts: workspace_notes_hosts
+  become: true
+  gather_facts: true
+  roles:
+    - role: notes_docker
+      when: workspace_notes_manage_docker | bool
+    - role: workspace_notes
+    - role: notes_verify

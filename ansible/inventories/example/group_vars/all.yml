@@ -1,0 +1,59 @@
+---
+# false: deploy beside Bifrost; true: provision and use a dedicated Azure VM.
+workspace_notes_create_azure_vm: false
+workspace_notes_existing_host: ""
+workspace_notes_existing_user: azureuser
+workspace_notes_existing_azure_resource_group: RG-PI-OPENAI-TEST
+workspace_notes_existing_azure_public_ip_name: bifrost-public-ip-2
+workspace_notes_ssh_port: 22
+workspace_notes_ssh_wait_timeout: 300
+# Keep false on shared hosts to avoid package changes or daemon restarts.
+# Set true when provisioning a dedicated VM that needs Docker installed.
+workspace_notes_manage_docker: "{{ workspace_notes_create_azure_vm }}"
+
+workspace_notes_domain_name: katavti.klino.me
+workspace_notes_tls_email: admin@example.com
+# Public image repository. The newest local Git tag becomes the image tag.
+notes_image_repository: docker.io/tomklino/workspace-notes
+notes_image_platform: linux/amd64
+# Optional when Docker is already authenticated locally.
+notes_image_registry_username: ""
+notes_image_registry_password: ""
+workspace_notes_data_dir: /var/lib/workspace-notes/notes
+workspace_notes_auth_secret: CHANGE_ME
+workspace_notes_google_client_id: ""
+workspace_notes_google_client_secret: ""
+
+# Existing Bifrost proxy integration. Set false with a dedicated VM.
+workspace_notes_share_bifrost_proxy: true
+workspace_notes_bifrost_project_dir: /opt/bifrost-stack
+workspace_notes_bifrost_network_name: bifrost-stack_default
+
+# GCP Cloud DNS. Disable if DNS is managed elsewhere.
+notes_dns_enabled: true
+notes_dns_project: pasteblink-222512
+notes_dns_auth_kind: application
+notes_dns_managed_zone: klino-me
+notes_dns_managed_zone_dns_name: klino.me.
+notes_dns_credentials_file: "" # what is it? why is it necessary?
+
+# Dedicated Azure VM configuration (used only when enabled above).
+azure_vm_resource_group: workspace-notes
+azure_vm_location: israelcentral
+azure_vm_vnet_name: workspace-notes-vnet
+azure_vm_vnet_address_prefixes:
+  - 10.43.0.0/16
+azure_vm_subnet_name: default
+azure_vm_subnet_prefix: 10.43.1.0/24
+azure_vm_nsg_name: workspace-notes-nsg
+azure_vm_public_ip_name: workspace-notes-public-ip
+azure_vm_nic_name: workspace-notes-nic
+azure_vm_name: workspace-notes
+azure_vm_size: Standard_B2s
+azure_vm_image:
+  offer: 0001-com-ubuntu-server-jammy
+  publisher: Canonical
+  sku: 22_04-lts-gen2
+  version: latest
+azure_vm_admin_username: azureuser
+azure_vm_admin_ssh_public_key: ~/.ssh/id_rsa.pub

@@ -1,0 +1,26 @@
+---
+- name: Restart Workspace Notes
+  community.docker.docker_compose_v2:
+    project_src: "{{ workspace_notes_base_dir }}"
+    project_name: "{{ workspace_notes_compose_project_name }}"
+    pull: always
+    state: restarted
+
+- name: Reload Bifrost Caddy
+  when: workspace_notes_share_bifrost_proxy | bool
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - --project-directory
+      - "{{ workspace_notes_bifrost_project_dir }}"
+      - exec
+      - -T
+      - "{{ workspace_notes_bifrost_caddy_service }}"
+      - caddy
+      - reload
+      - --config
+      - /etc/caddy/Caddyfile
+      - --adapter
+      - caddyfile
+  changed_when: true

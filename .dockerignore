@@ -1,0 +1,9 @@
+.git
+ansible
+node_modules
+.nuxt
+.output
+.env
+.env.*
+client_secret.json
+*.log

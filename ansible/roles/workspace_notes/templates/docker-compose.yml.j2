@@ -1,0 +1,41 @@
+---
+services:
+  workspace-notes:
+    image: "{{ workspace_notes_image }}"
+    pull_policy: always
+    container_name: "{{ workspace_notes_container_name }}"
+    restart: unless-stopped
+    user: "{{ workspace_notes_system_uid }}:{{ workspace_notes_system_gid }}"
+    env_file:
+      - .env
+    volumes:
+      - "{{ workspace_notes_data_dir }}:{{ workspace_notes_container_data_dir }}"
+    expose:
+      - "{{ workspace_notes_container_port }}"
+{% if workspace_notes_share_bifrost_proxy %}
+    networks:
+      - default
+      - bifrost_proxy
+{% endif %}
+{% if not workspace_notes_share_bifrost_proxy %}
+  caddy:
+    image: "{{ workspace_notes_caddy_image }}"
+    container_name: "{{ workspace_notes_caddy_container_name }}"
+    restart: unless-stopped
+    depends_on:
+      - workspace-notes
+    ports:
+      - "{{ workspace_notes_http_port }}:80"
+      - "{{ workspace_notes_https_port }}:443"
+    volumes:
+      - "{{ workspace_notes_caddy_config_dir_path }}/Caddyfile:/etc/caddy/Caddyfile:ro"
+      - "{{ workspace_notes_caddy_routes_dir }}:/etc/caddy/caddy.d:ro"
+      - "{{ workspace_notes_caddy_data_dir }}:/data"
+      - "{{ workspace_notes_caddy_config_dir }}:/config"
+{% endif %}
+{% if workspace_notes_share_bifrost_proxy %}
+networks:
+  bifrost_proxy:
+    external: true
+    name: "{{ workspace_notes_bifrost_network_name }}"
+{% endif %}

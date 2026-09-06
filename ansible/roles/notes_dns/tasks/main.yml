@@ -1,0 +1,31 @@
+---
+- name: Skip DNS management unless enabled
+  when: not (notes_dns_enabled | bool)
+  ansible.builtin.debug:
+    msg: "Workspace Notes DNS management is disabled"
+
+- name: Validate DNS configuration
+  when: notes_dns_enabled | bool
+  ansible.builtin.assert:
+    that:
+      - notes_dns_target | length > 0
+      - notes_dns_project | length > 0
+      - notes_dns_managed_zone | length > 0
+      - notes_dns_managed_zone_dns_name | length > 0
+      - workspace_notes_domain_name | length > 0
+
+- name: Ensure public DNS record exists
+  when: notes_dns_enabled | bool
+  google.cloud.gcp_dns_resource_record_set:
+    project: "{{ notes_dns_project }}"
+    auth_kind: "{{ notes_dns_auth_kind }}"
+    service_account_file: "{{ notes_dns_credentials_file | default(omit, true) }}"
+    managed_zone:
+      name: "{{ notes_dns_managed_zone }}"
+      dnsName: "{{ notes_dns_managed_zone_dns_name }}"
+    name: "{{ workspace_notes_domain_name }}."
+    type: "{{ notes_dns_record_type }}"
+    ttl: "{{ notes_dns_ttl }}"
+    target:
+      - "{{ notes_dns_target }}"
+    state: present

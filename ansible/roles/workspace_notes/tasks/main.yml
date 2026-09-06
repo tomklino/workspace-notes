@@ -1,0 +1,104 @@
+---
+- name: Validate Workspace Notes configuration
+  ansible.builtin.assert:
+    that:
+      - workspace_notes_domain_name | length > 0
+      - workspace_notes_tls_email | length > 0
+      - workspace_notes_image | length > 0
+      - workspace_notes_data_dir.startswith('/')
+      - workspace_notes_auth_secret | length > 0
+    fail_msg: "Set the domain, TLS email, image, persistent data directory, and auth secret"
+
+- name: Ensure application system group exists
+  ansible.builtin.group:
+    name: "{{ workspace_notes_system_user }}"
+    gid: "{{ workspace_notes_system_gid }}"
+    system: true
+
+- name: Ensure application system user exists
+  ansible.builtin.user:
+    name: "{{ workspace_notes_system_user }}"
+    uid: "{{ workspace_notes_system_uid }}"
+    group: "{{ workspace_notes_system_user }}"
+    system: true
+    create_home: false
+    shell: /usr/sbin/nologin
+
+- name: Ensure application directories exist
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ workspace_notes_system_user }}"
+    group: "{{ workspace_notes_system_user }}"
+    mode: "{{ item.mode }}"
+  loop:
+    - path: "{{ workspace_notes_base_dir }}"
+      mode: "0755"
+    - path: "{{ workspace_notes_data_dir }}"
+      mode: "0750"
+    - path: "{{ workspace_notes_caddy_data_dir }}"
+      mode: "0750"
+    - path: "{{ workspace_notes_caddy_config_dir }}"
+      mode: "0750"
+    - path: "{{ workspace_notes_caddy_config_dir_path }}"
+      mode: "0755"
+    - path: "{{ workspace_notes_caddy_routes_dir }}"
+      mode: "0755"
+
+- name: Render application environment
+  ansible.builtin.template:
+    src: workspace-notes.env.j2
+    dest: "{{ workspace_notes_base_dir }}/.env"
+    owner: root
+    group: root
+    mode: "0600"
+  notify: Restart Workspace Notes
+
+- name: Render compose file
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ workspace_notes_base_dir }}/docker-compose.yml"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart Workspace Notes
+
+- name: Render standalone main Caddyfile
+  when: not (workspace_notes_share_bifrost_proxy | bool)
+  ansible.builtin.template:
+    src: Caddyfile.j2
+    dest: "{{ workspace_notes_caddy_config_dir_path }}/Caddyfile"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart Workspace Notes
+
+- name: Render standalone Workspace Notes Caddy route
+  when: not (workspace_notes_share_bifrost_proxy | bool)
+  ansible.builtin.template:
+    src: workspace-notes.caddy.j2
+    dest: "{{ workspace_notes_caddy_routes_dir }}/workspace-notes.caddy"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart Workspace Notes
+
+- name: Render Workspace Notes route for the Bifrost proxy
+  when: workspace_notes_share_bifrost_proxy | bool
+  ansible.builtin.template:
+    src: workspace-notes.caddy.j2
+    dest: "{{ workspace_notes_bifrost_caddy_dir }}/workspace-notes.caddy"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload Bifrost Caddy
+
+- name: Ensure application stack is up
+  community.docker.docker_compose_v2:
+    project_src: "{{ workspace_notes_base_dir }}"
+    project_name: "{{ workspace_notes_compose_project_name }}"
+    pull: always
+    state: present
+
+- name: Flush restart handlers
+  ansible.builtin.meta: flush_handlers

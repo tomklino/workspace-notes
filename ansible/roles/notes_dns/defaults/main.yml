@@ -1,0 +1,6 @@
+---
+notes_dns_enabled: true
+notes_dns_record_type: A
+notes_dns_ttl: 300
+notes_dns_auth_kind: application
+notes_dns_credentials_file: ""
