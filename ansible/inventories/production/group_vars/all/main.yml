@@ -24,9 +24,9 @@ notes_image_create_repository: true
 notes_image_repository_private: false
 notes_image_repository_description: Workspace Notes deployment images
 workspace_notes_data_dir: /var/lib/workspace-notes/notes
-workspace_notes_auth_secret: CHANGE_ME
-workspace_notes_google_client_id: ""
-workspace_notes_google_client_secret: ""
+workspace_notes_auth_secret: "{{ vault_workspace_notes_auth_secret }}"
+workspace_notes_google_client_id: "{{ vault_workspace_notes_google_client_id }}"
+workspace_notes_google_client_secret: "{{ vault_workspace_notes_google_client_secret }}"
 
 # Existing Bifrost proxy integration. Set false with a dedicated VM.
 workspace_notes_share_bifrost_proxy: true

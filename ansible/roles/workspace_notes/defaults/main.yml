@@ -7,7 +7,7 @@ workspace_notes_data_dir: /var/lib/workspace-notes/notes
 workspace_notes_container_data_dir: /data/notes
 workspace_notes_compose_project_name: workspace-notes
 workspace_notes_container_name: workspace-notes
-workspace_notes_image: docker.io/tomklino/workspace-notes:latest
+workspace_notes_image: "{{ notes_image_repository }}:latest"
 workspace_notes_container_port: 3000
 workspace_notes_listen_address: 0.0.0.0
 workspace_notes_auth_secret: ""

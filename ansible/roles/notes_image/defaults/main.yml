@@ -1,7 +1,13 @@
 ---
-notes_image_repository: docker.io/tomklino/workspace-notes
+notes_image_repository: "{{ notes_image_registry_namespace }}/workspace-notes"
 notes_image_source_dir: "{{ playbook_dir }}/../.."
 notes_image_platform: linux/amd64,linux/arm64
 notes_image_registry_username: ""
 notes_image_registry_password: ""
+notes_image_docker_config_path: >-
+  {{ lookup('env', 'DOCKER_CONFIG') | default(lookup('env', 'HOME') ~ '/.docker', true) }}/config.json
 notes_image_build_missing: true
+notes_image_create_repository: true
+notes_image_repository_private: false
+notes_image_repository_description: Workspace Notes deployment images
+notes_image_docker_hub_api_url: https://hub.docker.com/v2

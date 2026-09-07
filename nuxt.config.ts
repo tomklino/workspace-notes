@@ -9,9 +9,9 @@ export default defineNuxtConfig({
     // Auth secret - set via NUXT_AUTH_SECRET env var
     authSecret: process.env['NUXT_AUTH_SECRET'],
     public: {
-      googleSignInEnabled: Boolean(
-        process.env['GOOGLE_CLIENT_ID'] && process.env['GOOGLE_CLIENT_SECRET']
-      )
+      // Runtime deployments override this with
+      // NUXT_PUBLIC_GOOGLE_SIGN_IN_ENABLED=true.
+      googleSignInEnabled: false
     }
   },
   devtools: { enabled: true },

@@ -47,6 +47,111 @@
     - notes_image_manifest_result.rc != 0
     - notes_image_build_missing | bool
   block:
+    - name: Validate automatic Docker Hub repository creation
+      when: notes_image_create_repository | bool
+      ansible.builtin.assert:
+        that:
+          - notes_image_repository.split('/') | length == 3
+          - notes_image_repository.split('/')[0] in ['docker.io', 'index.docker.io']
+        fail_msg: >-
+          Automatic repository creation supports Docker Hub repositories named
+          docker.io/NAMESPACE/REPOSITORY.
+
+    - name: Read the Docker CLI configuration
+      when:
+        - notes_image_create_repository | bool
+        - notes_image_registry_username | length == 0
+      ansible.builtin.slurp:
+        src: "{{ notes_image_docker_config_path }}"
+      register: notes_image_docker_config_result
+      no_log: true
+
+    - name: Decode the active Docker Hub credentials
+      when:
+        - notes_image_create_repository | bool
+        - notes_image_registry_username | length == 0
+      ansible.builtin.set_fact:
+        notes_image_docker_hub_auth: >-
+          {{ (((notes_image_docker_config_result.content | b64decode | from_json).auths
+               | default({})).get('https://index.docker.io/v1/', {}).auth
+              | default('')) | b64decode }}
+      no_log: true
+
+    - name: Require credentials from Docker login or role variables
+      when: notes_image_create_repository | bool
+      ansible.builtin.assert:
+        that:
+          - >-
+            (notes_image_registry_username | length > 0
+             and notes_image_registry_password | length > 0)
+            or ':' in (notes_image_docker_hub_auth | default(''))
+        fail_msg: >-
+          Run docker login, or set notes_image_registry_username and
+          notes_image_registry_password.
+
+    - name: Select Docker Hub API credentials
+      when: notes_image_create_repository | bool
+      ansible.builtin.set_fact:
+        notes_image_docker_hub_username: >-
+          {{ notes_image_registry_username
+             if notes_image_registry_username | length > 0
+             else notes_image_docker_hub_auth.split(':', 1)[0] }}
+        notes_image_docker_hub_password: >-
+          {{ notes_image_registry_password
+             if notes_image_registry_username | length > 0
+             else notes_image_docker_hub_auth.split(':', 1)[1] }}
+      no_log: true
+
+    - name: Authenticate with the Docker Hub API
+      when: notes_image_create_repository | bool
+      ansible.builtin.uri:
+        url: "{{ notes_image_docker_hub_api_url }}/users/login/"
+        method: POST
+        body_format: json
+        body:
+          username: "{{ notes_image_docker_hub_username }}"
+          password: "{{ notes_image_docker_hub_password }}"
+        status_code: 200
+        return_content: true
+      register: notes_image_docker_hub_login
+      no_log: true
+
+    - name: Check whether the Docker Hub repository exists
+      when: notes_image_create_repository | bool
+      ansible.builtin.uri:
+        url: >-
+          {{ notes_image_docker_hub_api_url }}/repositories/{{ notes_image_repository.split('/')[1] }}/{{ notes_image_repository.split('/')[2] }}/
+        method: GET
+        headers:
+          Authorization: "JWT {{ notes_image_docker_hub_login.json.token }}"
+        status_code:
+          - 200
+          - 404
+      register: notes_image_repository_result
+      no_log: true
+
+    - name: Create the Docker Hub repository
+      when:
+        - notes_image_create_repository | bool
+        - notes_image_repository_result.status == 404
+      ansible.builtin.uri:
+        url: >-
+          {{ notes_image_docker_hub_api_url }}/repositories/{{ notes_image_repository.split('/')[1] }}/
+        method: POST
+        headers:
+          Authorization: "JWT {{ notes_image_docker_hub_login.json.token }}"
+        body_format: json
+        body:
+          name: "{{ notes_image_repository.split('/')[2] }}"
+          namespace: "{{ notes_image_repository.split('/')[1] }}"
+          description: "{{ notes_image_repository_description }}"
+          is_private: "{{ notes_image_repository_private | bool }}"
+        status_code:
+          - 201
+          - 202
+      changed_when: true
+      no_log: true
+
     - name: Create temporary tagged source checkout
       ansible.builtin.tempfile:
         state: directory
