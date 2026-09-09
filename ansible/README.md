@@ -39,6 +39,25 @@ ansible-playbook --syntax-check \
 ansible-lint playbooks/build-image.yml playbooks/site.yml
 ```
 
+## Handling secrets
+
+Secrets are stored in ansible vault.
+
+For a single command use, if the secret for the vault
+is stored in azure vault, append this to the ansible-playbook command:
+
+```
+ansible-playbook \
+  --vault-password-file <(az keyvault secret show \
+    --vault name <vault-name> \
+    --name ansible-vault-key \
+    --query value \
+    --output tsv) \
+  -i ...\
+  playbook/...
+
+```
+
 ## Build and publish
 
 This play only operates on the controller. It skips the build when the latest Git tag is already present in the registry:

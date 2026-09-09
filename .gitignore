@@ -26,3 +26,5 @@ logs
 # Secret files
 client_secret.json
 
+# Local README
+.README-LOCAL.md
